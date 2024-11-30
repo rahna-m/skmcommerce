@@ -5,7 +5,7 @@ import 'package:skmecom/model/category_model.dart';
 
 class PocketBaseService {
   final PocketBase client = PocketBase(
-      'http://commerce.sketchmonk.com:8090'); // Replace with your PocketBase server URL
+      'http://commerce.sketchmonk.com:8090'); //  PocketBase server URL
 
 
 // Login
@@ -55,7 +55,7 @@ class PocketBaseService {
   required String collectionName,
   int page = 1,
   int perPage = 6,
-  String filter = "featured = true",
+  String filter = "",
   String sort = "",
   String expand = "category,variants_via_product",
 }) async {
@@ -68,8 +68,11 @@ class PocketBaseService {
       "expand": expand,
     };
 
+    
+
     // Make sure to check how your API client accepts parameters
     final records = await client.collection(collectionName).getFullList(query: query);
+    print("url $query" );
     print("record $records");
     return records.map((record) => record.toJson()).toList();
   } catch (e) {
@@ -111,4 +114,36 @@ Future<List<Map<String, dynamic>>> fetchCategories({
       return [];
     }
   }
-}
+
+
+
+ Future<List<Map<String, dynamic>>> fetchProducts({
+    required String collectionName,
+    int page = 1,
+    int perPage = 6,
+    String filter = "featured = true",
+    String sort = "",
+    String expand = "category,variants_via_product",
+  }) async {
+    try {
+      final query = {
+        "page": page,
+        "perPage": perPage,
+        "filter": filter,
+        "sort": sort,
+        "expand": expand,
+      };
+
+      // Make sure to check how your API client accepts parameters
+      final records =
+          await client.collection(collectionName).getFullList(query: query);
+      print("record $records");
+      return records.map((record) => record.toJson()).toList();
+    } catch (e) {
+      print("Failed to fetch records: $e");
+      return [];
+    }
+  }
+
+  }
+

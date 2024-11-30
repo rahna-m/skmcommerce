@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
+import 'package:skmecom/model/category_model.dart';
+import 'package:skmecom/pocketbase_service.dart';
+import 'package:skmecom/services/filtersingleton.dart';
 import 'package:skmecom/utils/constants.dart';
 
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 class FilterDrawer extends StatefulWidget {
   const FilterDrawer({super.key});
@@ -25,6 +29,29 @@ class _FilterDrawerState extends State<FilterDrawer> {
   double feet = 0;
   String heightInFeet = "null";
   int height = 180;
+  bool _loading = true;
+  final PocketBaseService pocketBaseService = PocketBaseService();
+  List<CategoryModel> categories = [];
+
+  Future<void> fetchCategories() async {
+    final categoriesJson = await pocketBaseService.fetchCategories();
+
+    setState(() {
+      categories =
+          categoriesJson.map((cat) => CategoryModel.fromJson(cat)).toList();
+      setState(() {
+        _loading = false;
+      });
+    });
+    print("cat: $categories");
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    fetchCategories();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +94,10 @@ class _FilterDrawerState extends State<FilterDrawer> {
                         side: const BorderSide(color: AppColors.graycolor),
                       ),
                       color: AppColors.backgroundColor,
-                      onPressed: () {},
+                      onPressed: () {
+                        FilterSingleton.instance.resetFilter();
+                        setState(() {});
+                      },
                       child: Row(
                         children: [
                           Icon(
@@ -118,12 +148,12 @@ class _FilterDrawerState extends State<FilterDrawer> {
                             padding: 4.0,
                             toggleSize: 15.0,
                             borderRadius: 10.0,
-                            activeColor: AppColors.graycolor,
-                            value: _switchValue,
+                            inactiveColor: AppColors.graycolor,
+                            activeColor: AppColors.primarycolor,
+                            value: FilterSingleton.instance.featuredFlag,
                             onToggle: (value) {
-                              setState(() {
-                                _switchValue = value;
-                              });
+                              FilterSingleton.instance.setFeatured();
+                              setState(() {});
                             },
                           ),
                           SizedBox(
@@ -166,206 +196,64 @@ class _FilterDrawerState extends State<FilterDrawer> {
                             height: 0,
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                TextButton(
-                                    style: TextButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                        splashFactory: NoSplash.splashFactory),
-                                    onPressed: () => setState(
-                                        () => checkedValue = !checkedValue),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                              height: 24.0,
-                                              width: 24.0,
-                                              child: Checkbox(
-                                                  value: checkedValue,
-                                                  side: MaterialStateBorderSide
-                                                      .resolveWith(
-                                                    (states) => BorderSide(
-                                                        width: 1.0,
-                                                        color: AppColors
-                                                            .graycolor),
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                          color: AppColors
-                                                              .graycolor,
-                                                          width: 0.2),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  onChanged: (value) {
-                                                    setState(() =>
-                                                        checkedValue = value!);
-                                                  })),
-                                          SizedBox(width: 10.0),
-                                          Text(
-                                            "Rolex",
-                                            style: TextStyle(
-                                                color: AppColors.textcolor,
-                                                fontSize: titleFontSize),
-                                          )
-                                        ])),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                TextButton(
-                                    style: TextButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                        splashFactory: NoSplash.splashFactory),
-                                    onPressed: () => setState(
-                                        () => checkedValue1 = !checkedValue1),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                              height: 24.0,
-                                              width: 24.0,
-                                              child: Checkbox(
-                                                  value: checkedValue1,
-                                                  side: MaterialStateBorderSide
-                                                      .resolveWith(
-                                                    (states) => BorderSide(
-                                                        width: 1.0,
-                                                        color: AppColors
-                                                            .graycolor),
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                          color: AppColors
-                                                              .graycolor,
-                                                          width: 0.2),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  onChanged: (value) {
-                                                    setState(() =>
-                                                        checkedValue1 = value!);
-                                                  })),
-                                          SizedBox(width: 10.0),
-                                          Text(
-                                            "WHEY PROTEIN",
-                                            style: TextStyle(
-                                                color: AppColors.textcolor,
-                                                fontSize: titleFontSize),
-                                          )
-                                        ])),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                TextButton(
-                                    style: TextButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                        splashFactory: NoSplash.splashFactory),
-                                    onPressed: () => setState(
-                                        () => checkedValue2 = !checkedValue2),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                              height: 24.0,
-                                              width: 24.0,
-                                              child: Checkbox(
-                                                  side: MaterialStateBorderSide
-                                                      .resolveWith(
-                                                    (states) => BorderSide(
-                                                        width: 1.0,
-                                                        color: AppColors
-                                                            .graycolor),
-                                                  ),
-                                                  value: checkedValue2,
-                                                  shape: RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                          color: AppColors
-                                                              .graycolor,
-                                                          width: 0.2),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  onChanged: (value) {
-                                                    setState(() =>
-                                                        checkedValue2 = value!);
-                                                  })),
-                                          SizedBox(width: 10.0),
-                                          Text(
-                                            "Rechard Mille",
-                                            style: TextStyle(
-                                                color: AppColors.textcolor,
-                                                fontSize: titleFontSize),
-                                          )
-                                        ])),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                TextButton(
-                                    style: TextButton.styleFrom(
-                                        padding: EdgeInsets.zero,
-                                        minimumSize: Size.zero,
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                        splashFactory: NoSplash.splashFactory),
-                                    onPressed: () => setState(
-                                        () => checkedValue3 = !checkedValue3),
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                              height: 24.0,
-                                              width: 24.0,
-                                              child: Checkbox(
-                                                  side: MaterialStateBorderSide
-                                                      .resolveWith(
-                                                    (states) => BorderSide(
-                                                        width: 1.0,
-                                                        color: AppColors
-                                                            .graycolor),
-                                                  ),
-                                                  value: checkedValue3,
-                                                  shape: RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                          color: AppColors
-                                                              .graycolor,
-                                                          width: 0.2),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  onChanged: (value) {
-                                                    setState(() =>
-                                                        checkedValue3 = value!);
-                                                  })),
-                                          SizedBox(width: 10.0),
-                                          Text(
-                                            "Gainer",
-                                            style: TextStyle(
-                                                color: AppColors.textcolor,
-                                                fontSize: titleFontSize),
-                                          )
-                                        ])),
-                                SizedBox(
-                                  height: 10,
-                                )
-                              ],
-                            ),
+                                children: categories.map((e) {
+                              return TextButton(
+                                  style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      splashFactory: NoSplash.splashFactory),
+                                  onPressed: () {
+                                    // FilterSingleton.instance.setFilter(e.id);
+                                    // setState(() {});
+                                  },
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                            height: 24.0,
+                                            width: 24.0,
+                                            child: Checkbox(
+                                                value: FilterSingleton
+                                                    .instance.SeletedCategory
+                                                    .contains(e.id),
+                                                side: MaterialStateBorderSide
+                                                    .resolveWith(
+                                                  (states) => BorderSide(
+                                                      width: 1.0,
+                                                      color:
+                                                          AppColors.graycolor),
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                    side: BorderSide(
+                                                        color:
+                                                            AppColors.graycolor,
+                                                        width: 0.2),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5)),
+                                                onChanged: (value) {
+                                                  FilterSingleton.instance
+                                                      .setFilter(e.id);
+                                                  setState(() {});
+                                                  // setState(() =>
+                                                  //     checkedValue = value!);
+                                                })),
+                                        SizedBox(width: 10.0),
+                                        Text(
+                                          "${e.title}",
+                                          style: TextStyle(
+                                              color: AppColors.textcolor,
+                                              fontSize: secondayTitleFontSize,
+                                              fontWeight: FontWeight.w100),
+                                        )
+                                      ]));
+                            }).toList()),
                           ),
                         ],
                       ),
@@ -398,7 +286,8 @@ class _FilterDrawerState extends State<FilterDrawer> {
                                     height: 24.0,
                                     width: 24.0,
                                     child: Checkbox(
-                                        value: priceRangeCheckedValue,
+                                        value: FilterSingleton
+                                            .instance.priceRangeFlag,
                                         side:
                                             MaterialStateBorderSide.resolveWith(
                                           (states) => BorderSide(
@@ -412,8 +301,9 @@ class _FilterDrawerState extends State<FilterDrawer> {
                                             borderRadius:
                                                 BorderRadius.circular(5)),
                                         onChanged: (value) {
-                                          setState(() =>
-                                              priceRangeCheckedValue = value!);
+                                          FilterSingleton.instance
+                                              .togglePriceRage();
+                                          setState(() {});
                                         })),
                               ],
                             ),
@@ -422,34 +312,43 @@ class _FilterDrawerState extends State<FilterDrawer> {
                             color: AppColors.graycolor,
                             height: 0,
                           ),
-                          SfSlider(
-                            min: 0.0,
-                            max: 10000.0,
-                            value: _value,
-                            interval: 2500,
-                            stepSize: 100,
-                            showTicks: true,
-                            showLabels: true,
-                            enableTooltip: true,
-                            showDividers: true,
-                            minorTicksPerInterval: 0,
-                            activeColor: AppColors.primarycolor,
-                            inactiveColor: AppColors.graycolor,
-                            labelPlacement: LabelPlacement.onTicks,
-                            labelFormatterCallback:
-                                (actualValue, formattedText) {
-                              print(actualValue);
-                              print(formattedText);
-                              formattedText = "\u{20B9}" +
-                                  (actualValue / 1000).toString() +
-                                  "K";
-                              return formattedText;
-                            },
-                            onChanged: (dynamic value) {
-                              setState(() {
-                                _value = value;
-                              });
-                            },
+                          SfRangeSliderTheme(
+                            data: SfRangeSliderThemeData(
+                              thumbColor: Colors.white,
+                              thumbStrokeWidth: 1,
+                              thumbStrokeColor: AppColors.primarycolor,
+                            ),
+                            child: SfRangeSlider(
+                              min: 0.0,
+                              max: 10000.0,
+                              values: FilterSingleton.instance.priceRange,
+                              interval: 2500,
+                              stepSize: 100,
+                              showTicks: true,
+                              showLabels: true,
+                              enableTooltip: true,
+                              showDividers: true,
+                              minorTicksPerInterval: 0,
+                              // activeColor: AppColors.primarycolor,
+                              inactiveColor: AppColors.graycolor,
+                              labelPlacement: LabelPlacement.onTicks,
+                              labelFormatterCallback:
+                                  (actualValue, formattedText) {
+                                print(actualValue);
+                                print(formattedText);
+                                formattedText = "\u{20B9}" +
+                                    (actualValue / 1000).toString() +
+                                    "K";
+                                return formattedText;
+                              },
+                              onChanged: FilterSingleton.instance.priceRangeFlag
+                                  ? (SfRangeValues values) {
+                                      FilterSingleton.instance
+                                          .setPriceRange(values);
+                                      setState(() {});
+                                    }
+                                  : null,
+                            ),
                           ),
                           SizedBox(
                             height: 40,

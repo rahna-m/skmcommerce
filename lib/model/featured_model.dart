@@ -17,6 +17,7 @@ class Product {
   final String name;
   final String slug;
   final String updated;
+  int? quantity;
 
   Product({
     required this.actualPrice,
@@ -35,6 +36,7 @@ class Product {
     required this.name,
     required this.slug,
     required this.updated,
+    this.quantity = 1,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class Product {
       name: json['name'],
       slug: json['slug'],
       updated: json['updated'],
+      quantity: json['quantity']
     );
   }
 
@@ -76,6 +79,7 @@ class Product {
       'name': name,
       'slug': slug,
       'updated': updated,
+      'quantity': quantity
     };
   }
 }

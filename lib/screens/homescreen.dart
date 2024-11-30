@@ -25,13 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchFeaturedProducts() async {
     final productsJson = await pocketBaseService.productsFeatured(
       collectionName: 'products',
+      filter: "featured = true"
     );
     setState(() {
       result = productsJson.map((json) => Product.fromJson(json)).toList();
       //  result = productsJson.cast<Product>();
     });
     print("Featured products: ${result.length}");
-    print("Featured products: ${result.first.images}");
+    // print("Featured products: ${result.first.images}");
   }
 
   Future<void> fetchCategories() async {
@@ -122,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: CustomButton(
                     title: "See More",
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1,)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1,filter: "featured = true",)));
                     },
                   ),
                 ),
@@ -142,17 +143,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3),
                   itemBuilder: (BuildContext context, int index) {
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      child: GridTile(
-                          // footer:  Text(),
-                          child: Image.network(
-                        //  "assets/images/category1.webp",
-                        "https://commerce.sketchmonk.com/_pb/api/files/${categories[index].collectionId}/${categories[index].id}/${categories[index].image.toString()}",
-
-                        fit: BoxFit.cover,
-                      )),
+                    return GestureDetector(
+                      onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1, filter: "category = ${categories[index].id}",)));
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        child: GridTile(
+                            // footer:  Text(),
+                            child: Image.network(
+                          //  "assets/images/category1.webp",
+                          "https://commerce.sketchmonk.com/_pb/api/files/${categories[index].collectionId}/${categories[index].id}/${categories[index].image.toString()}",
+                      
+                          fit: BoxFit.cover,
+                        )),
+                      ),
                     );
                   },
                 ),

@@ -8,6 +8,8 @@ import 'package:skmecom/component/popup_item.dart';
 import 'package:skmecom/component/triangle_widget.dart';
 import 'package:skmecom/model/featured_model.dart';
 import 'package:skmecom/pocketbase_service.dart';
+import 'package:skmecom/provider/add_to_cart_provider.dart';
+import 'package:skmecom/screens/cartscreen.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class ProductItem extends StatefulWidget {
@@ -88,16 +90,16 @@ class _ProductItemState extends State<ProductItem> {
                             );
                           }),
                     ),
-                    SizedBox(
+                  const  SizedBox(
                       width: 10,
                     ),
                     Expanded(
-                      child: Container(
+                      child:  Container(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           // mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
+                           const SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -116,7 +118,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ),
                               ],
                             ),
-                            SizedBox(
+                           const SizedBox(
                               height: 4,
                             ),
                             Container(
@@ -136,7 +138,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ],
                               ),
                             ),
-                            SizedBox(
+                           const SizedBox(
                               height: 4,
                             ),
                             Row(
@@ -150,7 +152,7 @@ class _ProductItemState extends State<ProductItem> {
                                       fontSize: 17.sp,
                                       fontWeight: FontWeight.w600),
                                 ),
-                                SizedBox(
+                               const SizedBox(
                                   width: 5,
                                 ),
                                 Text(
@@ -163,15 +165,15 @@ class _ProductItemState extends State<ProductItem> {
                                 )
                               ],
                             ),
-                            SizedBox(
+                           const SizedBox(
                               height: 4,
                             ),
-                            Spacer(),
+                           const Spacer(),
                             Row(
                               children: [
-                                Spacer(),
+                             const   Spacer(),
                                 _countController.text == "0"
-                                    ? SizedBox()
+                                    ? const SizedBox()
                                     : ClipRRect(
                                         borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(8),
@@ -182,7 +184,7 @@ class _ProductItemState extends State<ProductItem> {
                                             color: AppColors.primarycolor,
                                             width: 30,
                                             height: 28,
-                                            child: Center(
+                                            child: const Center(
                                               child: Text(
                                                 "-",
                                                 style: TextStyle(
@@ -196,14 +198,14 @@ class _ProductItemState extends State<ProductItem> {
                                         ),
                                       ),
                                 _countController.text == "0"
-                                    ? SizedBox()
+                                    ? const SizedBox()
                                     : Container(
                                         color: AppColors.graycolor,
                                         width: 30,
                                         height: 28,
                                         child: Center(
                                           child: TextFormField(
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color:
                                                       AppColors.primarycolor),
                                               controller: _countController,
@@ -211,7 +213,7 @@ class _ProductItemState extends State<ProductItem> {
                                               textAlign: TextAlign.center,
                                               keyboardType:
                                                   TextInputType.number,
-                                              decoration: InputDecoration(
+                                              decoration: const InputDecoration(
                                                   border: InputBorder.none,
                                                   contentPadding:
                                                       EdgeInsets.symmetric(
@@ -228,7 +230,7 @@ class _ProductItemState extends State<ProductItem> {
                                         backgroundBlendMode: BlendMode.darken,
                                         borderRadius: _countController.text ==
                                                 "0"
-                                            ? BorderRadius.only(
+                                            ? const BorderRadius.only(
                                                 topLeft: Radius.circular(10),
                                                 topRight: Radius.circular(0),
                                                 bottomLeft: Radius.circular(0),
@@ -240,7 +242,7 @@ class _ProductItemState extends State<ProductItem> {
                                         onTap: () {
                                           addPopup(context);
                                         },
-                                        child: Text(
+                                        child: const Text(
                                           "+",
                                           style: TextStyle(
                                               color: Colors.white,
@@ -269,7 +271,7 @@ class _ProductItemState extends State<ProductItem> {
               offset: Offset(83.5.w, 10),
               // offset: Offset(85.2.w, 10),
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     color: AppColors.offerbackgroundcolor,
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(8),
@@ -277,7 +279,7 @@ class _ProductItemState extends State<ProductItem> {
                         topRight: Radius.circular(8))),
                 height: 22,
                 width: 50,
-                child: Center(
+                child: const Center(
                     child: Text(
                   "20% OFF",
                   style: TextStyle(
@@ -292,7 +294,7 @@ class _ProductItemState extends State<ProductItem> {
               // offset: Offset(95.w, 31.6),
               child: CustomPaint(
                 painter: TrianglePainter(
-                  strokeColor: Color.fromARGB(255, 43, 129, 0),
+                  strokeColor: const Color.fromARGB(255, 43, 129, 0),
                   strokeWidth: 10,
                   paintingStyle: PaintingStyle.fill,
                 ),
@@ -313,13 +315,13 @@ class _ProductItemState extends State<ProductItem> {
         context: context,
         builder: (context) => AlertDialog(
               backgroundColor: AppColors.backgroundColor,
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0))),
               contentPadding: EdgeInsets.zero,
               actionsPadding: EdgeInsets.zero,
               titlePadding: EdgeInsets.zero,
               iconPadding: EdgeInsets.zero,
-              insetPadding: EdgeInsets.symmetric(horizontal: 20),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
               // icon: Icon(
               //   Icons.question_mark,
               //   size: 40,
@@ -331,7 +333,7 @@ class _ProductItemState extends State<ProductItem> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
+                   const SizedBox(
                       height: 5,
                     ),
                     Row(
@@ -343,17 +345,17 @@ class _ProductItemState extends State<ProductItem> {
                               fontWeight: FontWeight.w600,
                               fontSize: titleFontSize),
                         ),
-                        Spacer(),
+                      const  Spacer(),
                         InkWell(
                             onTap: () => Navigator.of(context).pop(),
-                            child: Icon(Remix.close_line))
+                            child: const Icon(Remix.close_line))
                       ],
                     ),
-                    SizedBox(
+                  const  SizedBox(
                       height: 20,
                     ),
-                    PopUpItem(),
-                    SizedBox(
+                   const PopUpItem(),
+                   const SizedBox(
                       height: 10,
                     ),
                     Row(
@@ -365,10 +367,10 @@ class _ProductItemState extends State<ProductItem> {
                             width: 30,
                             decoration: BoxDecoration(
                                 border: Border.all(color: AppColors.graycolor),
-                                borderRadius: BorderRadius.only(
+                                borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(8),
                                     bottomLeft: Radius.circular(8))),
-                            child: Center(
+                            child: const Center(
                                 child: Text(
                               "-",
                               style: TextStyle(
@@ -386,14 +388,14 @@ class _ProductItemState extends State<ProductItem> {
                                   controller: _countController,
                                   textAlignVertical: TextAlignVertical.center,
                                   keyboardType: TextInputType.number,
-                                  style: TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 12),
                                   textAlign: TextAlign.center,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     isCollapsed: true,
                                     contentPadding:
                                         EdgeInsets.symmetric(vertical: 10),
                                     border: InputBorder.none,
-                                    focusedBorder: const OutlineInputBorder(
+                                    focusedBorder:  OutlineInputBorder(
                                       borderSide: BorderSide(
                                         color: AppColors.primarycolor,
                                       ),
@@ -407,10 +409,10 @@ class _ProductItemState extends State<ProductItem> {
                             width: 30,
                             decoration: BoxDecoration(
                                 border: Border.all(color: AppColors.graycolor),
-                                borderRadius: BorderRadius.only(
+                                borderRadius: const BorderRadius.only(
                                     topRight: Radius.circular(8),
                                     bottomRight: Radius.circular(8))),
-                            child: Center(
+                            child: const Center(
                                 child: Text(
                               "+",
                               style: TextStyle(
@@ -420,7 +422,7 @@ class _ProductItemState extends State<ProductItem> {
                         ),
                       ],
                     ),
-                    SizedBox(
+                  const  SizedBox(
                       height: 20,
                     ),
                     Row(
@@ -443,7 +445,7 @@ class _ProductItemState extends State<ProductItem> {
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600),
                             )),
-                        SizedBox(
+                      const  SizedBox(
                           width: 10,
                         ),
                         MaterialButton(
@@ -454,12 +456,12 @@ class _ProductItemState extends State<ProductItem> {
                             onPressed: () {},
                             child: Row(
                               children: [
-                                Icon(
+                               const Icon(
                                   Remix.add_line,
                                   size: 20,
                                   color: Colors.white,
                                 ),
-                                SizedBox(
+                              const  SizedBox(
                                   width: 10,
                                 ),
                                 Text(
@@ -473,7 +475,7 @@ class _ProductItemState extends State<ProductItem> {
                             )),
                       ],
                     ),
-                    SizedBox(
+                   const SizedBox(
                       height: 10,
                     )
                   ],
@@ -483,17 +485,18 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   Future<dynamic> itemDetailsPopUp(BuildContext context) {
+    final provider = CartProvider.of(context, listen: false);
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
               backgroundColor: AppColors.backgroundColor,
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0))),
               contentPadding: EdgeInsets.zero,
               actionsPadding: EdgeInsets.zero,
               titlePadding: EdgeInsets.zero,
               iconPadding: EdgeInsets.zero,
-              insetPadding: EdgeInsets.symmetric(horizontal: 20),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
               // icon: Icon(
               //   Icons.question_mark,
               //   size: 40,
@@ -542,7 +545,7 @@ class _ProductItemState extends State<ProductItem> {
                             right: 10,
                             child: InkWell(
                               onTap: () => Navigator.of(context).pop(),
-                              child: Icon(
+                              child: const Icon(
                                 Remix.close_line,
                                 size: 25,
                                 color: AppColors.graycolor,
@@ -551,7 +554,7 @@ class _ProductItemState extends State<ProductItem> {
                           )
                         ],
                       ),
-                      SizedBox(
+                     const SizedBox(
                         height: 10,
                       ),
                       Padding(
@@ -572,23 +575,23 @@ class _ProductItemState extends State<ProductItem> {
                                         fontWeight: FontWeight.w600),
                                   ),
                                 ),
-                                Icon(
+                              const  Icon(
                                   Remix.vip_crown_2_fill,
                                   size: 20,
                                 )
                               ],
                             ),
-                            SizedBox(
+                           const SizedBox(
                               height: 10,
                             ),
                             Row(
                               children: [
-                                Icon(
+                              const  Icon(
                                   Remix.apps_line,
                                   size: 20,
                                   color: AppColors.hashTagColor,
                                 ),
-                                SizedBox(
+                               const SizedBox(
                                   width: 5,
                                 ),
                                 Expanded(
@@ -603,7 +606,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ),
                               ],
                             ),
-                            SizedBox(
+                           const SizedBox(
                               height: 10,
                             ),
                             Text(
@@ -613,7 +616,7 @@ class _ProductItemState extends State<ProductItem> {
                                   color: AppColors.subTextColor,
                                   fontSize: secondayTitleFontSize),
                             ),
-                            SizedBox(
+                          const  SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -626,7 +629,7 @@ class _ProductItemState extends State<ProductItem> {
                                       color: AppColors.primarycolor,
                                       fontWeight: FontWeight.w600),
                                 ),
-                                SizedBox(
+                              const  SizedBox(
                                   width: 5,
                                 ),
                                 Text(
@@ -641,7 +644,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ),
                               ],
                             ),
-                            SizedBox(
+                           const SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -664,7 +667,7 @@ class _ProductItemState extends State<ProductItem> {
                                           fontSize: 16.sp,
                                           fontWeight: FontWeight.w600),
                                     )),
-                                SizedBox(
+                              const  SizedBox(
                                   width: 10,
                                 ),
                                 MaterialButton(
@@ -672,15 +675,38 @@ class _ProductItemState extends State<ProductItem> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     color: AppColors.primarycolor,
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      //  final cartProvider = CartProvider.of(context, listen: false);
+                                      Product product = Product(
+                                        actualPrice: widget.productData!.actualPrice, 
+                                        addons: widget.productData!.addons, 
+                                        category: widget.productData!.category, 
+                                        collectionId: widget.productData!.collectionId, 
+                                        collectionName: widget.productData!.collectionName, 
+                                        created: widget.productData!.created, 
+                                        description: widget.productData!.description, 
+                                        discountPrice: widget.productData!.discountPrice, 
+                                        expand: widget.productData!.expand, 
+                                        featured: widget.productData!.featured, 
+                                        id: widget.productData!.id, 
+                                        images: widget.productData!.images, 
+                                        name: widget.productData!.name, 
+                                        slug: widget.productData!.slug, 
+                                        updated: widget.productData!.updated);
+                                      provider.toogleFavorite(product);
+
+                                      print("add to cart data $product");
+
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen()));
+                                    },
                                     child: Row(
                                       children: [
-                                        Icon(
+                                       const Icon(
                                           Remix.add_line,
                                           size: 20,
                                           color: Colors.white,
                                         ),
-                                        SizedBox(
+                                       const SizedBox(
                                           width: 10,
                                         ),
                                         Text(
@@ -694,7 +720,7 @@ class _ProductItemState extends State<ProductItem> {
                                     )),
                               ],
                             ),
-                            SizedBox(
+                          const  SizedBox(
                               height: 10,
                             )
                           ],

@@ -8,7 +8,8 @@ import 'package:skmecom/pocketbase_service.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class ShopScreen extends StatefulWidget {
-  const ShopScreen({super.key});
+  final String? filter;
+  const ShopScreen({super.key, this.filter});
 
   @override
   State<ShopScreen> createState() => _ShopScreenState();
@@ -24,16 +25,17 @@ class _ShopScreenState extends State<ShopScreen> {
    List<Product> result = [];
 
     Future<void> fetchFeaturedProducts() async {
+       final filter = widget.filter?.isNotEmpty == true ? widget.filter : null;
     final productsJson = await pocketBaseService.productsFeatured(
       collectionName: 'products',
-      page: 1, perPage: 12, sort: ""
+      page: 1, perPage: 12, filter: filter ?? "", sort: ""
     );
     setState(() {
       result = productsJson.map((json) => Product.fromJson(json)).toList();
       //  result = productsJson.cast<Product>();
     });
-    print("Featured products: ${result.length}");
-    print("Featured products: ${result.first.images}");
+    // print("Featured products: ${result.length}");
+    // print("Featured products: ${result.first.images}");
   }
 
     @override

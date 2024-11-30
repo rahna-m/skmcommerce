@@ -12,7 +12,8 @@ import 'package:skmecom/utils/constants.dart';
 
 class HomeNavigation extends StatefulWidget {
   final int? selectedIndex;
-  const HomeNavigation({super.key,  this.selectedIndex});
+  final String? filter;
+  const HomeNavigation({super.key,  this.selectedIndex, this.filter});
 
   @override
   State<HomeNavigation> createState() => _HomeNavigationState();
@@ -45,7 +46,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
         return HomeScreen();
         break;
       case 1:
-        return ShopScreen();
+        return ShopScreen(filter: widget.filter,);
         break;
       case 2:
         return HelpScreen();
