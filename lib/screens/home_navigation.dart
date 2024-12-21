@@ -13,7 +13,8 @@ import 'package:skmecom/utils/constants.dart';
 class HomeNavigation extends StatefulWidget {
   final int? selectedIndex;
   final String? filter;
-  const HomeNavigation({super.key,  this.selectedIndex, this.filter});
+  final String? source;
+  const HomeNavigation({super.key,  this.selectedIndex, this.filter, this.source});
 
   @override
   State<HomeNavigation> createState() => _HomeNavigationState();
@@ -38,7 +39,11 @@ class _HomeNavigationState extends State<HomeNavigation> {
       _username = credentials['username'];
       // _password = credentials['password'];
     });
+
+    print("get username $_username");
   }
+
+ 
 
   Widget navigationPages(int selectedIndex) {
     switch (selectedIndex) {
@@ -46,7 +51,10 @@ class _HomeNavigationState extends State<HomeNavigation> {
         return HomeScreen();
         break;
       case 1:
-        return ShopScreen(filter: widget.filter,);
+        return ShopScreen(
+          filter: widget.source == "cat" ? widget.filter : null, // Reset the filter if it's not a category source
+          source: widget.source,
+        );
         break;
       case 2:
         return HelpScreen();
@@ -97,11 +105,13 @@ class _HomeNavigationState extends State<HomeNavigation> {
           automaticallyImplyLeading: false,
           forceMaterialTransparency: true,
           scrolledUnderElevation: 0,
+          // toolbarHeight: _selectedIndex == 3 ? 130 : 80,
           toolbarHeight: 80,
           title: const Text("SKMCOMMERCE"),
           actions: [
             _username == null
-                ? SizedBox(
+                ? 
+                SizedBox(
                     height: 30,
                     child: ElevatedButton.icon(
                       onPressed: () {
@@ -127,7 +137,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
                               width: 1, color: AppColors.primarycolor)),
                     ),
                   )
-                : SizedBox(),
+                 : SizedBox(),
             const SizedBox(width: 20),
              Padding(
               padding: EdgeInsets.only(right: 20),
@@ -135,6 +145,15 @@ class _HomeNavigationState extends State<HomeNavigation> {
                onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen())); }, ),
             )
           ],
+          //   bottom: _selectedIndex == 3 ?  TabBar(
+          //   indicatorColor: AppColors.primarycolor,
+          //   labelColor: AppColors.primarycolor,
+          //   unselectedLabelColor: Colors.black54,
+          //   tabs: [
+          //     Tab(text: "Profile"),
+          //     Tab(text: "Addresses"),
+          //   ],
+          // ) : null,
         ),
          endDrawer: const FilterDrawer(),
         body: navigationPages(_selectedIndex),

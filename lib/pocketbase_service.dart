@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:skmecom/model/category_model.dart';
+import 'package:skmecom/store_local.dart';
 
 class PocketBaseService {
   final PocketBase client = PocketBase(
@@ -10,10 +11,36 @@ class PocketBaseService {
 
 // Login
   Future<bool> authenticate(String username, String password) async {
+
+     final AuthService authService = AuthService();
     try {
     final result =   await client.collection('users').authWithPassword(username, password);
       print("Logged in successfully!");
-        print(result );
+        print("user login result $result" );
+
+
+    // Extract required values
+    final token = result.token;
+     final record = result.record!;
+    // final userId = record.id;
+         print("user login result record $record" );
+    // Extract fields from record's raw JSON
+    final rawRecord = record.toJson();
+    final userId = rawRecord['id'];
+    final userName = rawRecord['username'];
+    final email = rawRecord['email'];
+       final name = rawRecord['name'];
+    // final verified = rawRecord['verified'];
+
+      await authService.saveCredentials(userName,token, userId, email, name);
+
+    // Save data to SharedPreferences
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setString('token', token);
+    // await prefs.setString('userId', userId);
+    // await prefs.setString('userName', userName);
+    // await prefs.setString('email', email);
+    // await prefs.setBool('verified', verified);
          return true;
 
     } catch (e) {
@@ -108,6 +135,8 @@ Future<List<Map<String, dynamic>>> fetchCategories({
   Future<List<Map<String, dynamic>>> fetchRecords(String collectionName) async {
     try {
       final records = await client.collection(collectionName).getFullList();
+
+      print("address ${records}");
       return records.map((record) => record.toJson()).toList();
     } catch (e) {
       print("Failed to fetch records: $e");
@@ -137,7 +166,7 @@ Future<List<Map<String, dynamic>>> fetchCategories({
       // Make sure to check how your API client accepts parameters
       final records =
           await client.collection(collectionName).getFullList(query: query);
-      print("record $records");
+     
       return records.map((record) => record.toJson()).toList();
     } catch (e) {
       print("Failed to fetch records: $e");
@@ -145,5 +174,57 @@ Future<List<Map<String, dynamic>>> fetchCategories({
     }
   }
 
+   Future<bool> placeOrder({
+    required List<Map<String, dynamic>> products,
+    required String deliveryType,
+    required String paymentType,
+    String comments = "",
+    String address = "",
+  }) async {
+    try {
+      // Build the request body
+      final body = {
+        "products": products,
+        "deliveryType": deliveryType,
+        "paymentType": paymentType,
+        "comments": comments,
+        "address": address,
+      };
+
+      // Send the POST request
+      final response = await client.collection('orders').create(body: body);
+
+      print("Order placed successfully! Response: $response");
+      return true;
+    } catch (e) {
+      print("Failed to place order: $e");
+      return false;
+    }
   }
+
+
+
+  Future<Map<String, dynamic>?> fetchUserById(String userId) async {
+    try {
+      final record = await client.collection('users').getOne(userId);
+      print("User record: ${record.toJson()}");
+      return record.toJson();
+    } catch (e) {
+      print("Failed to fetch user record: $e");
+      return null;
+    }
+  }
+
+
+    Future<void> updateUser(String userId, Map<String, dynamic> data) async {
+  try {
+    await client.collection('users').update(userId, body: data);
+    print("User updated successfully!");
+  } catch (e) {
+    print("Failed to update user: $e");
+  }
+}
+}
+
+
 

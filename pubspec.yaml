@@ -30,6 +30,7 @@ environment:
 dependencies:
   carousel_slider: ^5.0.0
   cupertino_icons: ^1.0.6
+  file_picker: ^8.1.6
   flutter:
     sdk: flutter
   flutter_switch: ^0.3.2

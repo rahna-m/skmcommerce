@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_btn.dart';
-import 'package:skmecom/screens/cartscreen.dart';
+import 'package:skmecom/pocketbase_service.dart';
+import 'package:skmecom/provider/add_to_cart_provider.dart';
 import 'package:skmecom/utils/constants.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -14,31 +14,78 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final PocketBaseService pocketBaseService = PocketBaseService();
+
   bool isDelivery = false;
-  // int activeIndex = 1;
+  String orderDeliveryType = "Pickup";
+  String orderPaymentType = "Offline";
+  String orderComments= "";
+  String orderAddress= "";
+
+  void handlePlaceOrder(
+      List<Map<String, dynamic>> products,
+      String deliveryType,
+      String paymentType,
+      String comments,
+      String address) async {
+    // Example data
+    // final products = [
+    //   {"product": "gaf58ffvo1rtud0", "quantity": 1}
+    // ];
+    // const deliveryType = "pickup";
+    // const paymentType = "offline";
+    // const comments = "No comments";
+    // const address = "123 Main St";
+
+    // Call the `placeOrder` method
+    final isSuccess = await pocketBaseService.placeOrder(
+      products: products,
+      deliveryType: deliveryType,
+      paymentType: paymentType,
+      comments: comments,
+      address: address,
+    );
+
+    print(
+        "place order $products, $deliveryType, $paymentType, $comments, $address");
+
+    // Show a success or error message
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Order placed successfully!")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to place order.")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final provider = CartProvider.of(context);
+    final finalList = provider.cart;
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        // forceMaterialTransparency: true,
-        // scrolledUnderElevation: 0,
-        toolbarHeight: 80,
-        title: const Text("SKMCOMMERCE"),
-        actions: [
-          const SizedBox(width: 20),
-          Padding(
-            padding: EdgeInsets.only(right: 20),
-            child: IconButton(
-              icon: Icon(Remix.shopping_cart_2_line),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => CartScreen()));
-              },
-            ),
-          )
-        ],
-      ),
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   // forceMaterialTransparency: true,
+      //   // scrolledUnderElevation: 0,
+      //   toolbarHeight: 80,
+      //   title: const Text("SKMCOMMERCE"),
+      //   actions: [
+      //     const SizedBox(width: 20),
+      //     Padding(
+      //       padding: EdgeInsets.only(right: 20),
+      //       child: IconButton(
+      //         icon: Icon(Remix.shopping_cart_2_line),
+      //         onPressed: () {
+      //           Navigator.push(context,
+      //               MaterialPageRoute(builder: (context) => CartScreen()));
+      //         },
+      //       ),
+      //     )
+      //   ],
+      // ),
       body: Container(
         color: const Color.fromARGB(198, 236, 233, 233),
         child: SingleChildScrollView(
@@ -72,9 +119,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               return const Divider();
                             },
                             scrollDirection: Axis.vertical,
-                            itemCount: 2,
+                            itemCount: finalList.length,
                             itemBuilder: (context, i) {
-                              // final cartItems = finalList[i];
+                              final cartItems = finalList[i];
                               // print("cart data $cartItems");
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -88,10 +135,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
                                         image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/watch1.jpeg'),
-                                          // NetworkImage(
-                                          //     "https://commerce.sketchmonk.com/_pb/api/files/${cartItems.collectionId.toString()}/${cartItems.id}/${cartItems.images[0].toString()}"),
+                                          //   image: AssetImage(
+                                          //       'assets/images/watch1.jpeg'),
+                                          //   // NetworkImage(
+                                          //   //     "https://commerce.sketchmonk.com/_pb/api/files/${cartItems.collectionId.toString()}/${cartItems.id}/${cartItems.images[0].toString()}"),
+                                          //   fit: BoxFit.cover,
+                                          // ),
+
+                                          image:
+                                              // AssetImage('assets/images/watch1.jpeg'),
+                                              NetworkImage(
+                                                  "https://commerce.sketchmonk.com/_pb/api/files/${cartItems.collectionId.toString()}/${cartItems.id}/${cartItems.images[0].toString()}"),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
@@ -104,9 +158,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Rolex Daytona",
+                                            // "Rolex Daytona",
 
-                                            // cartItems.name,
+                                            cartItems.name,
 
                                             style: const TextStyle(
                                               fontSize: 16,
@@ -114,13 +168,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                             ),
                                           ),
                                           const SizedBox(height: 10),
-                                          Text("(default)"),
+                                          const Text("(default)"),
                                           const SizedBox(height: 10),
                                           Row(
                                             children: [
                                               Text(
-                                                "\u{20B9}2,000",
-                                                // "\u{20B9}${cartItems.actualPrice.toString()}",
+                                                // "\u{20B9}2,000",
+                                                "\u{20B9}${cartItems.actualPrice.toString()}",
 
                                                 style: const TextStyle(
                                                   fontSize: 14,
@@ -132,8 +186,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                               ),
                                               const SizedBox(width: 5),
                                               Text(
-                                                "\u{20B9}1,500",
-                                                // "\u{20B9}${cartItems.discountPrice.toString()}",
+                                                // "\u{20B9}1,500",
+                                                "\u{20B9}${cartItems.discountPrice.toString()}",
                                                 style: const TextStyle(
                                                   fontSize: 16,
                                                   color: AppColors.primarycolor,
@@ -152,7 +206,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       children: [
                                         IconButton(
                                             onPressed: () {},
-                                            icon: Icon(
+                                            icon: const Icon(
                                               Icons.delete,
                                               color: Colors.red,
                                             ))
@@ -163,15 +217,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               );
                             }),
                       ),
-                      Divider(),
+                      const Divider(),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Total"),
+                            const Text("Total"),
                             Text(
-                              "₹4,000",
+                              // "₹4,000",
+                              "₹${provider.actualPrice()}",
                               style: TextStyle(
                                   color: Colors.black, fontSize: 16.sp),
                             )
@@ -186,9 +241,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Discount"),
+                            const Text("Discount"),
                             Text(
-                              "-₹600",
+                              // "-₹600",
+                              "₹${provider.discountPrice()}",
                               style: TextStyle(
                                   color: Colors.green, fontSize: 16.sp),
                             )
@@ -209,7 +265,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   fontSize: 16.sp, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              "₹4,000",
+                              // "₹4,000",
+                              "₹${provider.totalPrice()}",
                               style: TextStyle(
                                   color: AppColors.primarycolor,
                                   fontWeight: FontWeight.bold,
@@ -229,7 +286,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               // Delivery type
 
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -267,8 +324,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             borderColor: [Color.fromARGB(198, 236, 233, 233)],
                             // radiusStyle: true,
                             onToggle: (index) {
-                               setState(() {
+                              setState(() {
                                 isDelivery = index == 1;
+                                orderDeliveryType = isDelivery ? "Delivery" : "Pickup"; 
                               });
                               print('switched to: $index');
                             },
@@ -282,100 +340,44 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                     // Conditionally Display Address Section
                     if (isDelivery)
-
-                    Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                        child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Select Address",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 18),
-                            )),
-                      ),
-                      const Divider(),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                        
-                            Text("No Address added"),
-                            CustomButton(title: "+ Add Address", onPressed: (){},)
-                        
-                        
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Select Address",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 18),
+                                  )),
+                            ),
+                            const Divider(),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text("No Address added"),
+                                  CustomButton(
+                                    title: "+ Add Address",
+                                    onPressed: () {},
+                                  )
+                                ],
+                              ),
+                            )
                           ],
                         ),
-                      )
-                     
-                  
-                     
-                    ],
-                  ),
-                ),
-                   
+                      ),
 
                     // Payment Type Section
                     const SizedBox(height: 16),
-                    // const Text(
-                    //   "Payment Type",
-                    //   style:
-                    //       TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    // ),
-                    // const SizedBox(height: 8),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //   children: [
-                    //     Expanded(
-                    //       child: GestureDetector(
-                    //         onTap: () {
-                    //           // Handle Offline Payment Selection
-                    //         },
-                    //         child: Container(
-                    //           padding: const EdgeInsets.symmetric(vertical: 12),
-                    //           decoration: BoxDecoration(
-                    //             color: Colors.white,
-                    //             border: Border.all(color: Colors.blue),
-                    //             borderRadius: BorderRadius.circular(8),
-                    //           ),
-                    //           child: const Text(
-                    //             "Offline",
-                    //             textAlign: TextAlign.center,
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 16),
-                    //     Expanded(
-                    //       child: GestureDetector(
-                    //         onTap: () {
-                    //           // Handle Online Payment Selection
-                    //         },
-                    //         child: Container(
-                    //           padding: const EdgeInsets.symmetric(vertical: 12),
-                    //           decoration: BoxDecoration(
-                    //             color: Colors.white,
-                    //             border: Border.all(color: Colors.blue),
-                    //             borderRadius: BorderRadius.circular(8),
-                    //           ),
-                    //           child: const Text(
-                    //             "Online",
-                    //             textAlign: TextAlign.center,
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-
 
                     Container(
                       padding:
@@ -411,13 +413,86 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             borderColor: [Color.fromARGB(198, 236, 233, 233)],
                             // radiusStyle: true,
                             onToggle: (index) {
-                             
+                              setState(() {
+                                 orderPaymentType = index == 1 ? "Offline" : "Offline"; 
+                              });
                               print('switched to: $index');
                             },
                           ),
                         ],
                       ),
                     ),
+
+                    const SizedBox(height: 16),
+
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Notes",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18),
+                                )),
+                          ),
+                          const Divider(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Column(
+                              // crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                TextField(
+                                  maxLines:
+                                      3, // Adjust for the height of the input
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'If you have any special requests or instructions, please mention them here.',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey.shade400,
+                                      fontSize: 14.0,
+                                    ),
+                                    contentPadding: const EdgeInsets.all(16.0),
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Container(
+                      width: double.infinity,
+                      child: CustomButton(
+                        title: "Place Order",
+                        //  onPressed: handlePlaceOrder('Pickup','Offline',"","" ),
+                        onPressed: () {
+                          final products = finalList.map((item) {
+                            return {
+                              "product": item
+                                  .id, // Assuming each item in finalList has an `id`
+                              "quantity": item
+                                  .quantity // Assuming each item in finalList has a `quantity`
+                            };
+                          }).toList();
+                          handlePlaceOrder(
+                              products, orderDeliveryType, orderPaymentType, orderComments, orderAddress);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),

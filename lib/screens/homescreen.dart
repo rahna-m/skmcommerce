@@ -1,3 +1,198 @@
+// import 'package:flutter/material.dart';
+// import 'package:skmecom/component/custom_btn.dart';
+// import 'package:skmecom/component/product_item.dart';
+// import 'package:skmecom/component/section_heading.dart';
+// import 'package:skmecom/model/category_model.dart';
+// import 'package:skmecom/model/featured_model.dart';
+// import 'package:skmecom/pocketbase_service.dart';
+// import 'package:skmecom/screens/home_navigation.dart';
+// import 'package:skmecom/utils/constants.dart';
+
+// class HomeScreen extends StatefulWidget {
+//   const HomeScreen({
+//     super.key,
+//   });
+
+//   @override
+//   State<HomeScreen> createState() => _HomeScreenState();
+// }
+
+// class _HomeScreenState extends State<HomeScreen> {
+//   final PocketBaseService pocketBaseService = PocketBaseService();
+//   List<Product> result = [];
+//   List<CategoryModel> categories = [];
+
+//   Future<void> fetchFeaturedProducts() async {
+//     final productsJson = await pocketBaseService.productsFeatured(
+//       collectionName: 'products',
+//       filter: "featured = true"
+//     );
+//     setState(() {
+//       result = productsJson.map((json) => Product.fromJson(json)).toList();
+//       //  result = productsJson.cast<Product>();
+//     });
+//     print("Featured products: ${result.length}");
+//     // print("Featured products: ${result.first.images}");
+//   }
+
+//   Future<void> fetchCategories() async {
+//     final categoriesJson = await pocketBaseService.fetchCategories();
+
+//     setState(() {
+//       categories =
+//           categoriesJson.map((cat) => CategoryModel.fromJson(cat)).toList();
+//     });
+//     print("cat: $categories");
+//   }
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchFeaturedProducts();
+//     fetchCategories();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: SingleChildScrollView(
+//         child: Container(
+//           color: const Color.fromARGB(198, 236, 233, 233),
+//           child: Column(
+//             children: [
+//               Container(
+//                 width: double.infinity,
+//                 height: 250,
+//                 padding: const EdgeInsets.symmetric(horizontal: 20),
+//                 decoration: BoxDecoration(
+//                   image: DecorationImage(
+//                     image: const AssetImage("assets/images/cover-cake.jpg"),
+//                     colorFilter: ColorFilter.mode(
+//                         Colors.black.withOpacity(0.2), BlendMode.dstATop),
+//                     fit: BoxFit.cover,
+//                   ),
+//                 ),
+//                 child: const Column(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       "Bring your happiness through a piece of cake",
+//                       style: TextStyle(
+//                           fontWeight: FontWeight.w700,
+//                           fontSize: 22,
+//                           color: AppColors.primarycolor),
+//                     ),
+//                     SizedBox(
+//                       height: 10,
+//                     ),
+//                     Text(
+//                       "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+//                       style: TextStyle(
+//                         fontSize: 16,
+//                       ),
+//                     )
+//                   ],
+//                 ),
+//               ),
+
+//               const SectionHeading(title: "FEATURED"),
+
+//               ListView.separated(
+//                   shrinkWrap:
+//                       true, // Allows the ListView to size itself correctly
+//                   physics: const NeverScrollableScrollPhysics(),
+//                   itemBuilder: (context, index) {
+//                     return ProductItem(
+//                       productData: result[index],
+//                     );
+//                   },
+//                   separatorBuilder: (context, index) {
+//                     return const SizedBox(height: 20);
+//                   },
+//                   itemCount: result.length),
+
+//               const SizedBox(
+//                 height: 25,
+//               ),
+
+//               Align(
+//                 alignment: Alignment.centerRight,
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 15),
+//                   child: CustomButton(
+//                     title: "See More",
+//                     onPressed: () {
+//                       Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1,filter: "featured = true",)));
+//                     },
+//                   ),
+//                 ),
+//               ),
+
+//               const SizedBox(
+//                 height: 10,
+//               ),
+
+//               const SectionHeading(title: "CATEGORIES"),
+
+//               Container(
+//                 height: 250,
+//                 padding: const EdgeInsets.symmetric(horizontal: 15),
+//                 child: GridView.builder(
+//                   itemCount: categories.length,
+//                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//                       crossAxisCount: 3),
+//                   itemBuilder: (BuildContext context, int index) {
+//                     return GestureDetector(
+//                       onTap: (){
+//                           Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1, 
+//                           // filter: "category = ${categories[index].id}",
+//                           // filter: categories[index].id,
+
+//                           filter: "((category =`${categories[index].id}`))",
+
+//                           )));
+//                       },
+//                       child: Card(
+//                         margin: const EdgeInsets.symmetric(
+//                             horizontal: 10, vertical: 10),
+//                         child: GridTile(
+//                             // footer:  Text(),
+//                             child: Image.network(
+//                           //  "assets/images/category1.webp",
+//                           "https://commerce.sketchmonk.com/_pb/api/files/${categories[index].collectionId}/${categories[index].id}/${categories[index].image.toString()}",
+                      
+//                           fit: BoxFit.cover,
+//                         )),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ),
+//               //  const SizedBox(
+//               //   height: 10,
+//               // ),
+
+//                Align(
+//                 alignment: Alignment.centerRight,
+//                 child: Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 15),
+//                   child: CustomButton(title: "See More",  onPressed: () {}),
+//                 ),
+//               ),
+
+//               const SizedBox(
+//                 height: 20,
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
 import 'package:flutter/material.dart';
 import 'package:skmecom/component/custom_btn.dart';
 import 'package:skmecom/component/product_item.dart';
@@ -22,18 +217,29 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Product> result = [];
   List<CategoryModel> categories = [];
 
+  // Future<void> fetchFeaturedProducts() async {
+  //   final productsJson = await pocketBaseService.productsFeatured(
+  //       collectionName: 'products', filter: "featured = true");
+  //   setState(() {
+  //     result = productsJson.map((json) => Product.fromJson(json)).toList();
+  //     //  result = productsJson.cast<Product>();
+  //   });
+  //   print("Featured products: ${result.length}");
+  //   // print("Featured products: ${result.first.images}");
+  // }
+
   Future<void> fetchFeaturedProducts() async {
+    setState(() {
+      result.clear();  // Clear the old list before fetching new data
+    });
     final productsJson = await pocketBaseService.productsFeatured(
-      collectionName: 'products',
-      filter: "featured = true"
-    );
+        collectionName: 'products', filter: "featured = true");
     setState(() {
       result = productsJson.map((json) => Product.fromJson(json)).toList();
-      //  result = productsJson.cast<Product>();
     });
     print("Featured products: ${result.length}");
-    // print("Featured products: ${result.first.images}");
   }
+
 
   Future<void> fetchCategories() async {
     final categoriesJson = await pocketBaseService.fetchCategories();
@@ -99,8 +305,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SectionHeading(title: "FEATURED"),
 
               ListView.separated(
-                  shrinkWrap:
-                      true, // Allows the ListView to size itself correctly
+                  shrinkWrap: true,
+                  // Allows the ListView to size itself correctly
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return ProductItem(
@@ -123,7 +329,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: CustomButton(
                     title: "See More",
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1,filter: "featured = true",)));
+                      setState(() {
+                        result.clear();  // Clear the current featured list
+                      });
+                      fetchFeaturedProducts();  // Refresh the featured list
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeNavigation(
+                                    selectedIndex: 1,
+                                   // filter: "featured = true",
+                                  )));
                     },
                   ),
                 ),
@@ -144,8 +360,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisCount: 3),
                   itemBuilder: (BuildContext context, int index) {
                     return GestureDetector(
-                      onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeNavigation(selectedIndex: 1, filter: "category = ${categories[index].id}",)));
+                      onTap: () {
+                        setState(() {
+                          result.clear();  // Clear the current featured list
+                        });
+                        fetchFeaturedProducts();  // Refresh the featured list
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              print(
+                                  "Navigating with filter: category = ${categories[index].id}");
+                              return HomeNavigation(
+                                selectedIndex: 1,
+                                filter: categories[index].id,
+                                source: "cat",
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: Card(
                         margin: const EdgeInsets.symmetric(
@@ -155,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Image.network(
                           //  "assets/images/category1.webp",
                           "https://commerce.sketchmonk.com/_pb/api/files/${categories[index].collectionId}/${categories[index].id}/${categories[index].image.toString()}",
-                      
+
                           fit: BoxFit.cover,
                         )),
                       ),
@@ -167,11 +400,16 @@ class _HomeScreenState extends State<HomeScreen> {
               //   height: 10,
               // ),
 
-               Align(
+              Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: CustomButton(title: "See More",  onPressed: () {}),
+                  child: CustomButton(title: "See More", onPressed: () {
+
+                    result.clear;
+                    //fetchCategories();
+                    //result = categories;
+                  }),
                 ),
               ),
 
@@ -185,3 +423,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

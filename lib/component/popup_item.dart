@@ -4,7 +4,18 @@ import 'package:skmecom/component/triangle_widget.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class PopUpItem extends StatelessWidget {
-  const PopUpItem({super.key});
+    final String productName;
+  final String discountAmount;
+  final String actualAmount;
+  final String imageUrl;
+
+  const PopUpItem({
+    super.key,
+    required this.productName,
+    required this.discountAmount,
+    required this.actualAmount,
+    required this.imageUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +38,17 @@ class PopUpItem extends StatelessWidget {
                     borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(8),
                         bottomLeft: Radius.circular(8)),
-                    child: Image.asset(
-                      "assets/images/watch1.jpeg",
+                    child: 
+                    // Image.asset(
+                    //   "assets/images/watch1.jpeg",
+                    //   width: 90,
+                    //   // height: 100,
+                    //   fit: BoxFit.cover,
+                    // ),
+
+                     Image.network(
+                      imageUrl,
                       width: 90,
-                      // height: 100,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -50,7 +68,8 @@ class PopUpItem extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                "Rolex ",
+                                // "Rolex ",
+                                  productName,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -86,7 +105,8 @@ class PopUpItem extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              "\u{20B9}40000",
+                              // "\u{20B9}40000",
+                               "\u{20B9}$actualAmount",
                               style: TextStyle(
                                   decoration: TextDecoration.lineThrough,
                                   fontSize: 17.sp,
@@ -97,7 +117,8 @@ class PopUpItem extends StatelessWidget {
                               width: 5,
                             ),
                             Text(
-                              "\u{20B9}3500",
+                              // "\u{20B9}3500",
+                                "\u{20B9}$discountAmount",
                               style: TextStyle(
                                   fontSize: 17.sp,
                                   color: AppColors.primarycolor,

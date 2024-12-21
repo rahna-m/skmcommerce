@@ -24,10 +24,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final AuthService authService = AuthService();
 
-  void saveUserCredentials(String user, String pswd) async {
-  await authService.saveCredentials(user, pswd);
-  print("Credentials saved.");
-}
+//   void saveUserCredentials(String user, String pswd) async {
+//   await authService.saveCredentials(user, pswd);
+//   print("Credentials saved.");
+// }
 
  void login() async {
     final username = _usernameController.text;
@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
      if (await pocketBaseService.authenticate(username, password)) {
 
-     saveUserCredentials(username,password);
+    //  saveUserCredentials(username,password);
       // If login is successful, navigate to the dashboard
       Navigator.pushReplacement(
         context,

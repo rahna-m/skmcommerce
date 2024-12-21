@@ -3,6 +3,8 @@ import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_btn.dart';
 import 'package:skmecom/provider/add_to_cart_provider.dart';
 import 'package:skmecom/screens/checkoutscreen.dart';
+import 'package:skmecom/screens/loginscreen.dart';
+import 'package:skmecom/store_local.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class CartScreen extends StatefulWidget {
@@ -13,6 +15,24 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  final AuthService authService = AuthService();
+  String? _username;
+
+  @override
+  void initState() {
+    super.initState();
+    getUserCredentials();
+  }
+
+  Future<void> getUserCredentials() async {
+    Map<String, String?> credentials = await authService.getCredentials();
+    setState(() {
+      _username = credentials['username'];
+     
+      // _password = credentials['password'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = CartProvider.of(context);
@@ -45,7 +65,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: Column(
         children: [
-           Divider(),
+          Divider(),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Align(
@@ -59,9 +79,9 @@ class _CartScreenState extends State<CartScreen> {
           // Expanded(child: Center(child: Text("No Data"),))
           Expanded(
             child: ListView.separated(
-              separatorBuilder: (context, i){
-              return  Divider();
-              },
+                separatorBuilder: (context, i) {
+                  return Divider();
+                },
                 scrollDirection: Axis.vertical,
                 itemCount: finalList.length,
                 itemBuilder: (context, i) {
@@ -78,10 +98,11 @@ class _CartScreenState extends State<CartScreen> {
                           height: 80,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            image:  DecorationImage(
-                              image: 
-                              // AssetImage('assets/images/watch1.jpeg'),
-                              NetworkImage( "https://commerce.sketchmonk.com/_pb/api/files/${cartItems.collectionId.toString()}/${cartItems.id}/${cartItems.images[0].toString()}"),
+                            image: DecorationImage(
+                              image:
+                                  // AssetImage('assets/images/watch1.jpeg'),
+                                  NetworkImage(
+                                      "https://commerce.sketchmonk.com/_pb/api/files/${cartItems.collectionId.toString()}/${cartItems.id}/${cartItems.images[0].toString()}"),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -112,11 +133,9 @@ class _CartScreenState extends State<CartScreen> {
                                   border:
                                       Border.all(color: Colors.grey, width: 2),
                                 ),
-                                child:
-
-                                  
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
                                   children: [
                                     Flexible(
                                       child: productQuantity(Icons.remove, i),
@@ -125,8 +144,10 @@ class _CartScreenState extends State<CartScreen> {
                                       width: 50,
                                       child: Container(
                                         decoration: const BoxDecoration(
-                                          border:
-                                              Border.symmetric(vertical: BorderSide(color: Colors.grey, width: 2) ),
+                                          border: Border.symmetric(
+                                              vertical: BorderSide(
+                                                  color: Colors.grey,
+                                                  width: 2)),
                                           // borderRadius: const BorderRadius.only(
                                           //   topRight: Radius.circular(8),
                                           //   bottomRight: Radius.circular(8),
@@ -167,7 +188,7 @@ class _CartScreenState extends State<CartScreen> {
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
-                               const SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
                                   // "\u{20B9}1,500",
                                   "\u{20B9}${cartItems.discountPrice.toString()}",
@@ -213,9 +234,26 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(
                   width: 10,
                 ),
-                 CustomButton(title: "Checkout", onPressed:() {
-                   Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutScreen()));
-                },),
+                CustomButton(
+                  title: "Checkout",
+                  onPressed: () {
+
+                     if (_username != null && _username!.isNotEmpty) {
+                          Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CheckoutScreen()));
+                     } else {
+
+                         Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LoginScreen()));
+
+                     }
+                
+                  },
+                ),
               ],
             )
           ],
@@ -227,6 +265,7 @@ class _CartScreenState extends State<CartScreen> {
 
 class ClearPopup {
   static Future<void> show(BuildContext context) {
+    final provider = CartProvider.of(context, listen: false);
     return showDialog(
       context: context,
       barrierDismissible: true,
@@ -287,7 +326,10 @@ class ClearPopup {
                     width: 10,
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      provider.clearCart(); // Clear the cart
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

@@ -1,13 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/popup_item.dart';
 import 'package:skmecom/component/triangle_widget.dart';
 import 'package:skmecom/model/featured_model.dart';
-import 'package:skmecom/pocketbase_service.dart';
 import 'package:skmecom/provider/add_to_cart_provider.dart';
 import 'package:skmecom/screens/cartscreen.dart';
 import 'package:skmecom/utils/constants.dart';
@@ -35,7 +32,7 @@ class _ProductItemState extends State<ProductItem> {
 
   cartCoutDecrease() {
     setState(() {
-      if (_countController.text != "0" && _countController.text != "") {
+      if (_countController.text != "1" && _countController.text != "") {
         _countController.text =
             (int.parse(_countController.text) - 1).toString();
       }
@@ -46,7 +43,7 @@ class _ProductItemState extends State<ProductItem> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _countController.text = "0";
+    _countController.text = "1";
     //  print( " img:  https://commerce.sketchmonk.com/_pb/api/files/${widget.productData!.collectionId.toString()}/${widget.productData!.id}/${widget.productData!.images[0].toString()}");
   }
 
@@ -90,16 +87,16 @@ class _ProductItemState extends State<ProductItem> {
                             );
                           }),
                     ),
-                  const  SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
-                      child:  Container(
+                      child: Container(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           // mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                           const SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -118,7 +115,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ),
                               ],
                             ),
-                           const SizedBox(
+                            const SizedBox(
                               height: 4,
                             ),
                             Container(
@@ -138,7 +135,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ],
                               ),
                             ),
-                           const SizedBox(
+                            const SizedBox(
                               height: 4,
                             ),
                             Row(
@@ -152,7 +149,7 @@ class _ProductItemState extends State<ProductItem> {
                                       fontSize: 17.sp,
                                       fontWeight: FontWeight.w600),
                                 ),
-                               const SizedBox(
+                                const SizedBox(
                                   width: 5,
                                 ),
                                 Text(
@@ -165,14 +162,14 @@ class _ProductItemState extends State<ProductItem> {
                                 )
                               ],
                             ),
-                           const SizedBox(
+                            const SizedBox(
                               height: 4,
                             ),
-                           const Spacer(),
+                            const Spacer(),
                             Row(
                               children: [
-                             const   Spacer(),
-                                _countController.text == "0"
+                                const Spacer(),
+                                _countController.text == "1"
                                     ? const SizedBox()
                                     : ClipRRect(
                                         borderRadius: const BorderRadius.only(
@@ -197,7 +194,7 @@ class _ProductItemState extends State<ProductItem> {
                                           ),
                                         ),
                                       ),
-                                _countController.text == "0"
+                                _countController.text == "1"
                                     ? const SizedBox()
                                     : Container(
                                         color: AppColors.graycolor,
@@ -229,7 +226,7 @@ class _ProductItemState extends State<ProductItem> {
                                         color: AppColors.primarycolor,
                                         backgroundBlendMode: BlendMode.darken,
                                         borderRadius: _countController.text ==
-                                                "0"
+                                                "1"
                                             ? const BorderRadius.only(
                                                 topLeft: Radius.circular(10),
                                                 topRight: Radius.circular(0),
@@ -311,6 +308,7 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   Future<dynamic> addPopup(BuildContext context) {
+     final provider = CartProvider.of(context, listen: false);
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -333,7 +331,7 @@ class _ProductItemState extends State<ProductItem> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                   const SizedBox(
+                    const SizedBox(
                       height: 5,
                     ),
                     Row(
@@ -345,17 +343,26 @@ class _ProductItemState extends State<ProductItem> {
                               fontWeight: FontWeight.w600,
                               fontSize: titleFontSize),
                         ),
-                      const  Spacer(),
+                        const Spacer(),
                         InkWell(
                             onTap: () => Navigator.of(context).pop(),
                             child: const Icon(Remix.close_line))
                       ],
                     ),
-                  const  SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
-                   const PopUpItem(),
-                   const SizedBox(
+                    //  const PopUpItem(),
+                    PopUpItem(
+                      productName: widget.productData?.name ?? "No Name",
+                      discountAmount: widget.productData?.discountPrice.toString() ??
+                          "0.00",
+                           actualAmount: widget.productData?.actualPrice.toString() ??
+                          "0.00",
+                      imageUrl:
+                          "https://commerce.sketchmonk.com/_pb/api/files/${widget.productData?.collectionId}/${widget.productData?.id}/${widget.productData?.images[0]}",
+                    ),
+                    const SizedBox(
                       height: 10,
                     ),
                     Row(
@@ -395,7 +402,7 @@ class _ProductItemState extends State<ProductItem> {
                                     contentPadding:
                                         EdgeInsets.symmetric(vertical: 10),
                                     border: InputBorder.none,
-                                    focusedBorder:  OutlineInputBorder(
+                                    focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
                                         color: AppColors.primarycolor,
                                       ),
@@ -422,7 +429,7 @@ class _ProductItemState extends State<ProductItem> {
                         ),
                       ],
                     ),
-                  const  SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     Row(
@@ -445,7 +452,7 @@ class _ProductItemState extends State<ProductItem> {
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600),
                             )),
-                      const  SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
                         MaterialButton(
@@ -453,15 +460,59 @@ class _ProductItemState extends State<ProductItem> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             color: AppColors.primarycolor,
-                            onPressed: () {},
+                            onPressed: () {
+
+                               final quantity = int.tryParse(_countController.text) ?? 1;
+                             
+                                      //  final cartProvider = CartProvider.of(context, listen: false);
+                                      Product product = Product(
+                                          actualPrice:
+                                              widget.productData!.actualPrice,
+                                          addons: widget.productData!.addons,
+                                          category:
+                                              widget.productData!.category,
+                                          collectionId:
+                                              widget.productData!.collectionId,
+                                          collectionName: widget
+                                              .productData!.collectionName,
+                                          created: widget.productData!.created,
+                                          description:
+                                              widget.productData!.description,
+                                          discountPrice:
+                                              widget.productData!.discountPrice,
+                                          expand: widget.productData!.expand,
+                                          featured:
+                                              widget.productData!.featured,
+                                          id: widget.productData!.id,
+                                          images: widget.productData!.images,
+                                          name: widget.productData!.name,
+                                          slug: widget.productData!.slug,
+                                          updated: widget.productData!.updated,
+                                           quantity: quantity
+                                          );
+                                         
+                                          
+                                         
+                                      provider.toogleFavorite(product);
+
+                                      print("add to cart data $product");
+                                         print("Add to cart with quantity: $quantity");
+
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CartScreen()));
+                                 
+                            },
                             child: Row(
                               children: [
-                               const Icon(
+                                const Icon(
                                   Remix.add_line,
                                   size: 20,
                                   color: Colors.white,
                                 ),
-                              const  SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 Text(
@@ -475,7 +526,7 @@ class _ProductItemState extends State<ProductItem> {
                             )),
                       ],
                     ),
-                   const SizedBox(
+                    const SizedBox(
                       height: 10,
                     )
                   ],
@@ -505,7 +556,7 @@ class _ProductItemState extends State<ProductItem> {
                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
-          // height: MediaQuery.of(context).size.height * 0.6,
+                  // height: MediaQuery.of(context).size.height * 0.6,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
@@ -554,7 +605,7 @@ class _ProductItemState extends State<ProductItem> {
                           )
                         ],
                       ),
-                     const SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       Padding(
@@ -575,23 +626,23 @@ class _ProductItemState extends State<ProductItem> {
                                         fontWeight: FontWeight.w600),
                                   ),
                                 ),
-                              const  Icon(
+                                const Icon(
                                   Remix.vip_crown_2_fill,
                                   size: 20,
                                 )
                               ],
                             ),
-                           const SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Row(
                               children: [
-                              const  Icon(
+                                const Icon(
                                   Remix.apps_line,
                                   size: 20,
                                   color: AppColors.hashTagColor,
                                 ),
-                               const SizedBox(
+                                const SizedBox(
                                   width: 5,
                                 ),
                                 Expanded(
@@ -606,7 +657,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ),
                               ],
                             ),
-                           const SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Text(
@@ -616,7 +667,7 @@ class _ProductItemState extends State<ProductItem> {
                                   color: AppColors.subTextColor,
                                   fontSize: secondayTitleFontSize),
                             ),
-                          const  SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -629,12 +680,12 @@ class _ProductItemState extends State<ProductItem> {
                                       color: AppColors.primarycolor,
                                       fontWeight: FontWeight.w600),
                                 ),
-                              const  SizedBox(
+                                const SizedBox(
                                   width: 5,
                                 ),
                                 Text(
                                   // "\u{20B9}40000",
-                  
+
                                   "\u{20B9}${widget.productData!.actualPrice.toString()}.00",
                                   style: TextStyle(
                                       decoration: TextDecoration.lineThrough,
@@ -644,7 +695,7 @@ class _ProductItemState extends State<ProductItem> {
                                 ),
                               ],
                             ),
-                           const SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Row(
@@ -667,7 +718,7 @@ class _ProductItemState extends State<ProductItem> {
                                           fontSize: 16.sp,
                                           fontWeight: FontWeight.w600),
                                     )),
-                              const  SizedBox(
+                                const SizedBox(
                                   width: 10,
                                 ),
                                 MaterialButton(
@@ -678,35 +729,46 @@ class _ProductItemState extends State<ProductItem> {
                                     onPressed: () {
                                       //  final cartProvider = CartProvider.of(context, listen: false);
                                       Product product = Product(
-                                        actualPrice: widget.productData!.actualPrice, 
-                                        addons: widget.productData!.addons, 
-                                        category: widget.productData!.category, 
-                                        collectionId: widget.productData!.collectionId, 
-                                        collectionName: widget.productData!.collectionName, 
-                                        created: widget.productData!.created, 
-                                        description: widget.productData!.description, 
-                                        discountPrice: widget.productData!.discountPrice, 
-                                        expand: widget.productData!.expand, 
-                                        featured: widget.productData!.featured, 
-                                        id: widget.productData!.id, 
-                                        images: widget.productData!.images, 
-                                        name: widget.productData!.name, 
-                                        slug: widget.productData!.slug, 
-                                        updated: widget.productData!.updated);
+                                          actualPrice:
+                                              widget.productData!.actualPrice,
+                                          addons: widget.productData!.addons,
+                                          category:
+                                              widget.productData!.category,
+                                          collectionId:
+                                              widget.productData!.collectionId,
+                                          collectionName: widget
+                                              .productData!.collectionName,
+                                          created: widget.productData!.created,
+                                          description:
+                                              widget.productData!.description,
+                                          discountPrice:
+                                              widget.productData!.discountPrice,
+                                          expand: widget.productData!.expand,
+                                          featured:
+                                              widget.productData!.featured,
+                                          id: widget.productData!.id,
+                                          images: widget.productData!.images,
+                                          name: widget.productData!.name,
+                                          slug: widget.productData!.slug,
+                                          updated: widget.productData!.updated);
                                       provider.toogleFavorite(product);
 
                                       print("add to cart data $product");
 
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen()));
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CartScreen()));
                                     },
                                     child: Row(
                                       children: [
-                                       const Icon(
+                                        const Icon(
                                           Remix.add_line,
                                           size: 20,
                                           color: Colors.white,
                                         ),
-                                       const SizedBox(
+                                        const SizedBox(
                                           width: 10,
                                         ),
                                         Text(
@@ -720,7 +782,7 @@ class _ProductItemState extends State<ProductItem> {
                                     )),
                               ],
                             ),
-                          const  SizedBox(
+                            const SizedBox(
                               height: 10,
                             )
                           ],
