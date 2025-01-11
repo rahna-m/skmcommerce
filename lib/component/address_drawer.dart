@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_field.dart';
+import 'package:skmecom/pocketbase_service.dart';
+import 'package:skmecom/screens/accountscreen.dart';
+import 'package:skmecom/screens/home_navigation.dart';
+import 'package:skmecom/store_local.dart';
 
 class AddressDrawer extends StatefulWidget {
   @override
@@ -8,13 +12,99 @@ class AddressDrawer extends StatefulWidget {
 }
 
 class _AddressDrawerState extends State<AddressDrawer> {
+  final AuthService authService = AuthService();
+  final PocketBaseService pocketBaseService = PocketBaseService();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _buildingController = TextEditingController();
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _pinController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
-   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+   String? city;
+    String? state;
+  String? userId;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+   
+    super.initState();
+    getUserCredentials();
+  }
+
+  void _validate() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _errorMessage = null; // Clear error if validation passes
+      });
+    } else {
+      setState(() {
+        _errorMessage = 'Please enter a valid 10-digit phone number';
+      });
+    }
+  }
+
+    Future<void> getUserCredentials() async {
+    Map<String, String?> credentials = await authService.getCredentials();
+    setState(() {
+     
+      userId = credentials['userId'];
+
+     
+    });
+
+    print("get _userId on account $userId");
+  }
+
+  void handleAddAddress(
+    String building,
+    String city,
+    String contact,
+    String landmark,
+    String name,
+    String pin,
+    String state,
+    String street,
+    String user,
+  ) async {
+    // Call the `placeOrder` method
+    final isSuccess = await pocketBaseService.AddAddress(
+      building: building, 
+      city: city, 
+      contact: contact, 
+      name: name, 
+      pin: pin, 
+      state: state, 
+      street: street, 
+      user: user);
+     
+   
+
+    print(
+        "Address $building, $city, $contact, $name, $pin, $state, $street, $user");
+
+    // Show a success or error message
+    if (isSuccess) {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Address added successfully!")),
+      // );
+    Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeNavigation(
+                                    selectedIndex: 3,
+                                    filter: 'address',
+                                  )));
+
+      // Navigator.of(context).push(MaterialPageRoute(builder: (context) => AccountScreen(initialTabIndex: 1)));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to add address.")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -41,7 +131,7 @@ class _AddressDrawerState extends State<AddressDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Name Field
-                
+
                     CustomTextField(
                       label: 'Name',
                       hintText: 'Name to identify the address',
@@ -53,11 +143,11 @@ class _AddressDrawerState extends State<AddressDrawer> {
                         return null;
                       },
                     ),
-                
+
                     const SizedBox(height: 16),
-                
+
                     // Building Field
-                
+
                     CustomTextField(
                       label: 'Building',
                       hintText: 'Flat no. / House no. etc.',
@@ -69,11 +159,11 @@ class _AddressDrawerState extends State<AddressDrawer> {
                         return null;
                       },
                     ),
-                
+
                     const SizedBox(height: 16),
-                
+
                     // Street Field
-                
+
                     CustomTextField(
                       label: 'Street',
                       hintText: 'e.g. 4th block',
@@ -85,12 +175,12 @@ class _AddressDrawerState extends State<AddressDrawer> {
                         return null;
                       },
                     ),
-                
+
                     const SizedBox(height: 16),
-                
+
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           "* ",
                           style: TextStyle(color: Colors.red),
                         ),
@@ -102,13 +192,23 @@ class _AddressDrawerState extends State<AddressDrawer> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      items: ['City 1', 'City 2', 'City 3']
+                      items: ['Banglore']
                           .map((city) => DropdownMenuItem(
                                 value: city,
                                 child: Text(city),
                               ))
                           .toList(),
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        setState(() {
+                          city = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a city';
+                        }
+                        return null; // No error
+                      },
                       decoration: InputDecoration(
                         hintText: 'Select city',
                         border: OutlineInputBorder(
@@ -120,10 +220,10 @@ class _AddressDrawerState extends State<AddressDrawer> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                
+
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           "* ",
                           style: TextStyle(color: Colors.red),
                         ),
@@ -135,13 +235,23 @@ class _AddressDrawerState extends State<AddressDrawer> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      items: ['State 1', 'State 2', 'State 3']
+                      items: ['Karnataka']
                           .map((state) => DropdownMenuItem(
                                 value: state,
                                 child: Text(state),
                               ))
                           .toList(),
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                           setState(() {
+                          state = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a state';
+                        }
+                        return null; // No error
+                      },
                       decoration: InputDecoration(
                         hintText: 'Select state',
                         border: OutlineInputBorder(
@@ -153,19 +263,19 @@ class _AddressDrawerState extends State<AddressDrawer> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                
+
                     CustomTextField(
                       isRequired: false,
                       label: 'Landmark',
-                      hintText: 'Nearby point of interest or prominent location',
+                      hintText:
+                          'Nearby point of interest or prominent location',
                       controller: _landmarkController,
-                     
                     ),
-                
+
                     const SizedBox(height: 16),
-                
+
                     // pin
-                
+
                     CustomTextField(
                       label: 'PIN',
                       hintText: '6 digit pin/zip code of the area',
@@ -177,14 +287,14 @@ class _AddressDrawerState extends State<AddressDrawer> {
                         return null;
                       },
                     ),
-                
+
                     const SizedBox(height: 16),
-                
+
                     // Contact no
-                
+
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           "* ",
                           style: TextStyle(color: Colors.red),
                         ),
@@ -194,53 +304,84 @@ class _AddressDrawerState extends State<AddressDrawer> {
                         ),
                       ],
                     ),
-                
+
                     const SizedBox(height: 8),
-                
-                    Row(
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Country Code Dropdown
-                        Container(
-                          width: 80,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade400),
-                            borderRadius:
-                                BorderRadius.horizontal(left: Radius.circular(8)),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              '+91',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black87,
+                        Row(
+                          children: [
+                            // Country Code Dropdown
+                            Container(
+                              width: 80,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade400),
+                                borderRadius: const BorderRadius.horizontal(
+                                    left: Radius.circular(8)),
                               ),
-                            ),
-                          ),
-                        ),
-                
-                        // Phone Number Input Field
-                        Expanded(
-                          child: TextField(
-                            controller: _contactController,
-                            keyboardType: TextInputType.phone,
-                            decoration: const InputDecoration(
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 16),
-                              hintText: 'a phone number to contact',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.horizontal(
-                                  right: Radius.circular(8),
+                              child: const Center(
+                                child: Text(
+                                  '+91',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                                borderSide: BorderSide(color: Colors.grey),
+                              ),
+                            ),
+
+                            // Phone Number Input Field
+                            Expanded(
+                              child: TextFormField(
+                                controller: _contactController,
+                                keyboardType: TextInputType.phone,
+                                decoration: const InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 16),
+                                  hintText: 'a phone number to contact',
+                                  hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.horizontal(
+                                      right: Radius.circular(8),
+                                    ),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  // setState(() {
+                                  //   _validate();
+                                  // });
+
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a phone number';
+                                  } else if (!RegExp(r'^[0-9]{10}$')
+                                      .hasMatch(value)) {
+                                    return 'Please enter a valid 10-digit phone number';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Error Message
+                        if (_errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              _errorMessage!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
                               ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ],
@@ -254,11 +395,22 @@ class _AddressDrawerState extends State<AddressDrawer> {
               onPressed: () {
                 // Handle submit action
 
+                if (_formKey.currentState!.validate()) {
+                  print("form is valid");
 
-                                  if (_formKey.currentState!.validate()) {
-                                    print("form is valid");
-                                 
-                                  }
+                   print("address data : ${_buildingController.text}, ${city.toString()},${_contactController.text},${_landmarkController.text}, ${_nameController.text}, ${state.toString()},${_pinController.text},${_streetController.text}, ${userId.toString()}");
+
+                  handleAddAddress(
+                    _buildingController.text,  // building name
+                    city.toString(), //city
+                    _contactController.text, // contact
+                    _landmarkController.text,  // landmark
+                    _nameController.text, //name
+                    _pinController.text, //pin
+                    state.toString(), //state
+                    _streetController.text, // street 
+                    userId.toString()); // user id
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,

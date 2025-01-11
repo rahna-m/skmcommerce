@@ -9,13 +9,16 @@ import 'package:skmecom/store_local.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class AccountScreen extends StatefulWidget {
-  const AccountScreen({super.key});
+    final int initialTabIndex;
+
+  const AccountScreen({super.key, this.initialTabIndex = 0});
+
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
 }
 
-class _AccountScreenState extends State<AccountScreen> {
+class _AccountScreenState extends State<AccountScreen> with SingleTickerProviderStateMixin {
   final AuthService authService = AuthService();
   final PocketBaseService pocketBaseService = PocketBaseService();
 
@@ -26,11 +29,32 @@ class _AccountScreenState extends State<AccountScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
+   late TabController _tabController;
 
   // Future<void> fetchUserDetails() async {
   //   final userRecord = await pocketBaseService.fetchUserById('64994269jmq2f43');
   //   print(userRecord);
   // }
+
+ 
+
+
+  @override
+  void initState() {
+    super.initState();
+    getUserCredentials();
+    _tabController = TabController(length: 2, vsync: this,  initialIndex: widget.initialTabIndex);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void navigateToAddressesTab() {
+    _tabController.animateTo(1); // Navigate to the second tab
+  }
 
   Future<void> getUserCredentials() async {
     Map<String, String?> credentials = await authService.getCredentials();
@@ -48,14 +72,7 @@ class _AccountScreenState extends State<AccountScreen> {
     print("get _userId on account $userId");
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    // fetchUserDetails();
-    getUserCredentials();
-  }
+ 
 
   PlatformFile? selectedFile;
 
@@ -88,7 +105,8 @@ class _AccountScreenState extends State<AccountScreen> {
           backgroundColor: Colors.white,
           toolbarHeight: 0,
           // title: const Text("Account"),
-          bottom: const TabBar(
+          bottom:  TabBar(
+            controller: _tabController,
             tabAlignment: TabAlignment.center,
             indicatorColor: AppColors.primarycolor,
             labelColor: AppColors.primarycolor,
@@ -100,6 +118,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
         ),
         body: TabBarView(
+           controller: _tabController,
           children: [
             // Profile Tab Content
             SingleChildScrollView(

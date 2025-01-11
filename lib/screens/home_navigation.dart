@@ -3,6 +3,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:skmecom/component/filtter_drawer.dart';
 import 'package:skmecom/screens/accountscreen.dart';
 import 'package:skmecom/screens/cartscreen.dart';
+import 'package:skmecom/screens/checkoutscreen.dart';
 import 'package:skmecom/screens/helpscreen.dart';
 import 'package:skmecom/screens/homescreen.dart';
 import 'package:skmecom/screens/loginscreen.dart';
@@ -14,7 +15,14 @@ class HomeNavigation extends StatefulWidget {
   final int? selectedIndex;
   final String? filter;
   final String? source;
-  const HomeNavigation({super.key,  this.selectedIndex, this.filter, this.source});
+  final bool showCheckout;
+  const HomeNavigation({
+    super.key,
+    this.selectedIndex,
+    this.filter,
+    this.source,
+    this.showCheckout = false,
+  });
 
   @override
   State<HomeNavigation> createState() => _HomeNavigationState();
@@ -22,14 +30,18 @@ class HomeNavigation extends StatefulWidget {
 
 class _HomeNavigationState extends State<HomeNavigation> {
   final AuthService authService = AuthService();
-  int _selectedIndex =  0;
+  int _selectedIndex = 0;
   String? _username;
   // String? _password;
 
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.selectedIndex != null ? widget.selectedIndex ?? 0 : 0;
+    _selectedIndex =
+        widget.selectedIndex != null ? widget.selectedIndex ?? 0 : 0;
+    //  _selectedIndex = widget.selectedIndex != null && widget.selectedIndex! <= 3
+    //   ? widget.selectedIndex!
+    //   : 0;
     getUserCredentials();
   }
 
@@ -43,16 +55,19 @@ class _HomeNavigationState extends State<HomeNavigation> {
     print("get username $_username");
   }
 
- 
-
   Widget navigationPages(int selectedIndex) {
+    //  if (widget.showCheckout) {
+    //   return const CheckoutScreen(); // Show CheckoutScreen directly
+    // }
     switch (selectedIndex) {
       case 0:
         return HomeScreen();
         break;
       case 1:
         return ShopScreen(
-          filter: widget.source == "cat" ? widget.filter : null, // Reset the filter if it's not a category source
+          filter: widget.source == "cat"
+              ? widget.filter
+              : null, // Reset the filter if it's not a category source
           source: widget.source,
         );
         break;
@@ -60,8 +75,13 @@ class _HomeNavigationState extends State<HomeNavigation> {
         return HelpScreen();
         break;
       case 3:
-        return AccountScreen();
+        return AccountScreen(
+          initialTabIndex: widget.filter == 'address' ? 1 : 0,
+        );
         break;
+      //   case 4:
+      // return  CheckoutScreen();
+      // break;
 
       default:
         return Center(child: Text("404"));
@@ -84,10 +104,6 @@ class _HomeNavigationState extends State<HomeNavigation> {
         icon: Icon(Remix.lifebuoy_line),
         label: 'Help',
       ),
-      //  const BottomNavigationBarItem(
-      //     icon: Icon(Remix.account_circle_line),
-      //     label: 'Account',
-      //   ),
     ];
 
     if (_username != null && _username!.isNotEmpty) {
@@ -98,6 +114,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
         ),
       );
     }
+
     return Scaffold(
         endDrawerEnableOpenDragGesture: false,
         backgroundColor: Colors.white,
@@ -110,8 +127,7 @@ class _HomeNavigationState extends State<HomeNavigation> {
           title: const Text("SKMCOMMERCE"),
           actions: [
             _username == null
-                ? 
-                SizedBox(
+                ? SizedBox(
                     height: 30,
                     child: ElevatedButton.icon(
                       onPressed: () {
@@ -137,53 +153,47 @@ class _HomeNavigationState extends State<HomeNavigation> {
                               width: 1, color: AppColors.primarycolor)),
                     ),
                   )
-                 : SizedBox(),
+                : SizedBox(),
             const SizedBox(width: 20),
-             Padding(
+            Padding(
               padding: EdgeInsets.only(right: 20),
-              child: IconButton( icon: Icon(Remix.shopping_cart_2_line),
-               onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen())); }, ),
+              child: IconButton(
+                icon: Icon(Remix.shopping_cart_2_line),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CartScreen()));
+                },
+              ),
             )
           ],
-          //   bottom: _selectedIndex == 3 ?  TabBar(
-          //   indicatorColor: AppColors.primarycolor,
-          //   labelColor: AppColors.primarycolor,
-          //   unselectedLabelColor: Colors.black54,
-          //   tabs: [
-          //     Tab(text: "Profile"),
-          //     Tab(text: "Addresses"),
-          //   ],
-          // ) : null,
         ),
-         endDrawer: const FilterDrawer(),
-        body: navigationPages(_selectedIndex),
+        endDrawer: const FilterDrawer(),
+        // body: widget.showCheckout
+        //     ? const CheckoutScreen() // Override with CheckoutScreen if showCheckout is true
+        //     : navigationPages(
+        //         _selectedIndex), // Navigate based on selected index
+          body: Builder(
+      builder: (context) {
+        if (widget.showCheckout) {
+          return const CheckoutScreen();
+        } else {
+          return navigationPages(_selectedIndex);
+        }
+      },
+    ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex, // Set the active index
           onTap: (index) {
             setState(() {
               _selectedIndex = index;
+              print("selected tap $_selectedIndex");
             });
           },
+          type: BottomNavigationBarType
+              .fixed, // Ensure icons and labels are visible
           items: bottomNavItems,
-          // items: const <BottomNavigationBarItem>[
-          //   BottomNavigationBarItem(
-          //     icon: Icon(Remix.home_2_line),
-          //     label: 'Home',
-          //   ),
-          //   BottomNavigationBarItem(
-          //     icon: Icon(Remix.handbag_line),
-          //     label: 'Shop',
-          //   ),
-          //   BottomNavigationBarItem(
-          //     icon: Icon(Remix.lifebuoy_line),
-          //     label: 'Help',
-          //   ),
-          //  _username == "" ? SizedBox():  BottomNavigationBarItem(
-          //     icon: Icon(Remix.account_circle_line),
-          //     label: 'Account',
-          //   ),
-          // ],
           selectedItemColor: AppColors.primarycolor,
+          //   selectedItemColor: widget.showCheckout ? Colors.black.withOpacity(0.58) : AppColors.primarycolor,
           unselectedItemColor: Colors.black.withOpacity(0.58),
         ));
   }

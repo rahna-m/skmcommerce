@@ -3,6 +3,7 @@ import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_btn.dart';
 import 'package:skmecom/provider/add_to_cart_provider.dart';
 import 'package:skmecom/screens/checkoutscreen.dart';
+import 'package:skmecom/screens/home_navigation.dart';
 import 'package:skmecom/screens/loginscreen.dart';
 import 'package:skmecom/store_local.dart';
 import 'package:skmecom/utils/constants.dart';
@@ -28,7 +29,7 @@ class _CartScreenState extends State<CartScreen> {
     Map<String, String?> credentials = await authService.getCredentials();
     setState(() {
       _username = credentials['username'];
-     
+
       // _password = credentials['password'];
     });
   }
@@ -234,26 +235,57 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(
                   width: 10,
                 ),
+                // CustomButton(
+                //   title: "Checkout",
+                //   onPressed: () {
+                //     if (_username != null && _username!.isNotEmpty) {
+                //       //   Navigator.push(
+                //       // context,
+                //       // MaterialPageRoute(
+                //       //     builder: (context) => CheckoutScreen()));
+
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (context) => const HomeNavigation(
+                //             showCheckout: true, // Set this flag to true
+                //           ),
+                //         ),
+                //       );
+                //     } else {
+                //       Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //               builder: (context) => LoginScreen()));
+                //     }
+                //   },
+                // ),
+
                 CustomButton(
-                  title: "Checkout",
-                  onPressed: () {
-
-                     if (_username != null && _username!.isNotEmpty) {
-                          Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckoutScreen()));
-                     } else {
-
-                         Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => LoginScreen()));
-
-                     }
-                
-                  },
+  title: "Checkout",
+  onPressed: finalList.isNotEmpty
+      ? () {
+          if (_username != null && _username!.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeNavigation(
+                  showCheckout: true, // Set this flag to true
                 ),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            );
+          }
+        }
+      : null, // Disable the button when finallist is empty
+),
+
               ],
             )
           ],

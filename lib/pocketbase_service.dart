@@ -8,45 +8,41 @@ class PocketBaseService {
   final PocketBase client = PocketBase(
       'http://commerce.sketchmonk.com:8090'); //  PocketBase server URL
 
-
 // Login
   Future<bool> authenticate(String username, String password) async {
-
-     final AuthService authService = AuthService();
+    final AuthService authService = AuthService();
     try {
-    final result =   await client.collection('users').authWithPassword(username, password);
+      final result =
+          await client.collection('users').authWithPassword(username, password);
       print("Logged in successfully!");
-        print("user login result $result" );
+      print("user login result $result");
 
+      // Extract required values
+      final token = result.token;
+      final record = result.record!;
+      // final userId = record.id;
+      print("user login result record $record");
+      // Extract fields from record's raw JSON
+      final rawRecord = record.toJson();
+      final userId = rawRecord['id'];
+      final userName = rawRecord['username'];
+      final email = rawRecord['email'];
+      final name = rawRecord['name'];
+      // final verified = rawRecord['verified'];
 
-    // Extract required values
-    final token = result.token;
-     final record = result.record!;
-    // final userId = record.id;
-         print("user login result record $record" );
-    // Extract fields from record's raw JSON
-    final rawRecord = record.toJson();
-    final userId = rawRecord['id'];
-    final userName = rawRecord['username'];
-    final email = rawRecord['email'];
-       final name = rawRecord['name'];
-    // final verified = rawRecord['verified'];
+      await authService.saveCredentials(userName, token, userId, email, name);
 
-      await authService.saveCredentials(userName,token, userId, email, name);
-
-    // Save data to SharedPreferences
-    // final prefs = await SharedPreferences.getInstance();
-    // await prefs.setString('token', token);
-    // await prefs.setString('userId', userId);
-    // await prefs.setString('userName', userName);
-    // await prefs.setString('email', email);
-    // await prefs.setBool('verified', verified);
-         return true;
-
+      // Save data to SharedPreferences
+      // final prefs = await SharedPreferences.getInstance();
+      // await prefs.setString('token', token);
+      // await prefs.setString('userId', userId);
+      // await prefs.setString('userName', userName);
+      // await prefs.setString('email', email);
+      // await prefs.setBool('verified', verified);
+      return true;
     } catch (e) {
       print("Authentication failed: $e");
       return false;
-
     }
   }
 
@@ -78,59 +74,57 @@ class PocketBaseService {
 
   // https://commerce.sketchmonk.com/_pb/api/collections/products/records?page=1&perPage=6&filter=featured%20%3D%20true&sort=&expand=category%2Cvariants_via_product
 
- Future<List<Map<String, dynamic>>> productsFeatured({
-  required String collectionName,
-  int page = 1,
-  int perPage = 6,
-  String filter = "",
-  String sort = "",
-  String expand = "category,variants_via_product",
-}) async {
-  try {
-    final query = {
-      "page": page,
-      "perPage": perPage,
-      "filter": filter,
-      "sort": sort,
-      "expand": expand,
-    };
+  Future<List<Map<String, dynamic>>> productsFeatured({
+    required String collectionName,
+    int page = 1,
+    int perPage = 6,
+    String filter = "",
+    String sort = "",
+    String expand = "category,variants_via_product",
+  }) async {
+    try {
+      final query = {
+        "page": page,
+        "perPage": perPage,
+        "filter": filter,
+        "sort": sort,
+        "expand": expand,
+      };
 
-    
-
-    // Make sure to check how your API client accepts parameters
-    final records = await client.collection(collectionName).getFullList(query: query);
-    print("url $query" );
-    print("record $records");
-    return records.map((record) => record.toJson()).toList();
-  } catch (e) {
-    print("Failed to fetch records: $e");
-    return [];
+      // Make sure to check how your API client accepts parameters
+      final records =
+          await client.collection(collectionName).getFullList(query: query);
+      print("url $query");
+      print("record $records");
+      return records.map((record) => record.toJson()).toList();
+    } catch (e) {
+      print("Failed to fetch records: $e");
+      return [];
+    }
   }
-}
 
-
-Future<List<Map<String, dynamic>>> fetchCategories({
-  int page = 1,
-  int perPage = 12,
-  String filter = "",
-  String sort = "",
-}) async {
-  try {
-     final query = {
-      "page": page,
-      "perPage": perPage,
-      "filter": filter,
-      "sort": sort,
-     
-    };
-    final records = await client.collection('categories').getFullList(query: query);
-    print("cat record $records");
-    return records.map((record) => record.toJson()).toList();
-  } catch (e) {
-    print("Failed to fetch records: $e");
-    return [];
+  Future<List<Map<String, dynamic>>> fetchCategories({
+    int page = 1,
+    int perPage = 12,
+    String filter = "",
+    String sort = "",
+  }) async {
+    try {
+      final query = {
+        "page": page,
+        "perPage": perPage,
+        "filter": filter,
+        "sort": sort,
+      };
+      final records =
+          await client.collection('categories').getFullList(query: query);
+      print("cat record $records");
+      return records.map((record) => record.toJson()).toList();
+    } catch (e) {
+      print("Failed to fetch records: $e");
+      return [];
+    }
   }
-}
 
   Future<List<Map<String, dynamic>>> fetchRecords(String collectionName) async {
     try {
@@ -144,9 +138,7 @@ Future<List<Map<String, dynamic>>> fetchCategories({
     }
   }
 
-
-
- Future<List<Map<String, dynamic>>> fetchProducts({
+  Future<List<Map<String, dynamic>>> fetchProducts({
     required String collectionName,
     int page = 1,
     int perPage = 6,
@@ -166,7 +158,7 @@ Future<List<Map<String, dynamic>>> fetchCategories({
       // Make sure to check how your API client accepts parameters
       final records =
           await client.collection(collectionName).getFullList(query: query);
-     
+
       return records.map((record) => record.toJson()).toList();
     } catch (e) {
       print("Failed to fetch records: $e");
@@ -174,7 +166,7 @@ Future<List<Map<String, dynamic>>> fetchCategories({
     }
   }
 
-   Future<bool> placeOrder({
+  Future<bool> placeOrder({
     required List<Map<String, dynamic>> products,
     required String deliveryType,
     required String paymentType,
@@ -202,8 +194,6 @@ Future<List<Map<String, dynamic>>> fetchCategories({
     }
   }
 
-
-
   Future<Map<String, dynamic>?> fetchUserById(String userId) async {
     try {
       final record = await client.collection('users').getOne(userId);
@@ -215,16 +205,48 @@ Future<List<Map<String, dynamic>>> fetchCategories({
     }
   }
 
+  Future<void> updateUser(String userId, Map<String, dynamic> data) async {
+    try {
+      await client.collection('users').update(userId, body: data);
+      print("User updated successfully!");
+    } catch (e) {
+      print("Failed to update user: $e");
+    }
+  }
 
-    Future<void> updateUser(String userId, Map<String, dynamic> data) async {
-  try {
-    await client.collection('users').update(userId, body: data);
-    print("User updated successfully!");
-  } catch (e) {
-    print("Failed to update user: $e");
+  Future<bool> AddAddress({
+    required String building,
+    required String city,
+    required String contact,
+    String landmark = "",
+    required String name,
+    required String pin,
+    required String state,
+    required String street,
+    required String user,
+  }) async {
+    try {
+      // Build the request body
+      final body =  <String, dynamic>{
+        "building": building,
+        "city": city,
+        "contact": contact,
+        "landmark": landmark,
+        "name": name,
+        "pin": pin,
+        "state": state,
+        "street": street,
+        "user": user,
+      };
+
+      // Send the POST request
+      final response = await client.collection('addresses').create(body: body);
+
+      print("Address added successfully! Response: $response");
+      return true;
+    } catch (e) {
+      print("Failed to add address: $e");
+      return false;
+    }
   }
 }
-}
-
-
-
