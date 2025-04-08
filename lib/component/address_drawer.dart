@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_field.dart';
 import 'package:skmecom/pocketbase_service.dart';
-import 'package:skmecom/screens/accountscreen.dart';
 import 'package:skmecom/screens/home_navigation.dart';
 import 'package:skmecom/store_local.dart';
 
@@ -21,14 +20,15 @@ class _AddressDrawerState extends State<AddressDrawer> {
   final TextEditingController _pinController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-   String? city;
-    String? state;
+  String? city;
+  String? state;
   String? userId;
+  // String? token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3MzcxMDk2MTksImlkIjoiNjQ5OTQyNjlqbXEyZjQzIiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.7jMWOB-THKxiHr0kPuc4roj-f1PZIPn0bjW0Oj2K0_0";
+  String? token;
   String? _errorMessage;
 
   @override
   void initState() {
-   
     super.initState();
     getUserCredentials();
   }
@@ -45,13 +45,11 @@ class _AddressDrawerState extends State<AddressDrawer> {
     }
   }
 
-    Future<void> getUserCredentials() async {
+  Future<void> getUserCredentials() async {
     Map<String, String?> credentials = await authService.getCredentials();
     setState(() {
-     
       userId = credentials['userId'];
-
-     
+       token = credentials['token'];
     });
 
     print("get _userId on account $userId");
@@ -67,19 +65,20 @@ class _AddressDrawerState extends State<AddressDrawer> {
     String state,
     String street,
     String user,
+    String token,
   ) async {
     // Call the `placeOrder` method
     final isSuccess = await pocketBaseService.AddAddress(
-      building: building, 
-      city: city, 
-      contact: contact, 
-      name: name, 
-      pin: pin, 
-      state: state, 
-      street: street, 
-      user: user);
-     
-   
+      
+        building: building,
+        city: city,
+        contact: contact,
+        name: name,
+        pin: pin,
+        state: state,
+        street: street,
+        user: user,
+        token: token, context: context);
 
     print(
         "Address $building, $city, $contact, $name, $pin, $state, $street, $user");
@@ -89,13 +88,13 @@ class _AddressDrawerState extends State<AddressDrawer> {
       // ScaffoldMessenger.of(context).showSnackBar(
       //   SnackBar(content: Text("Address added successfully!")),
       // );
-    Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomeNavigation(
-                                    selectedIndex: 3,
-                                    filter: 'address',
-                                  )));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeNavigation(
+                    selectedIndex: 3,
+                    filter: 'address',
+                  )));
 
       // Navigator.of(context).push(MaterialPageRoute(builder: (context) => AccountScreen(initialTabIndex: 1)));
     } else {
@@ -242,7 +241,7 @@ class _AddressDrawerState extends State<AddressDrawer> {
                               ))
                           .toList(),
                       onChanged: (value) {
-                           setState(() {
+                        setState(() {
                           state = value;
                         });
                       },
@@ -398,18 +397,30 @@ class _AddressDrawerState extends State<AddressDrawer> {
                 if (_formKey.currentState!.validate()) {
                   print("form is valid");
 
-                   print("address data : ${_buildingController.text}, ${city.toString()},${_contactController.text},${_landmarkController.text}, ${_nameController.text}, ${state.toString()},${_pinController.text},${_streetController.text}, ${userId.toString()}");
-
+                  print(
+                      "address data : ${_buildingController.text}, ${city.toString()},${_contactController.text},${_landmarkController.text}, ${_nameController.text}, ${state.toString()},${_pinController.text},${_streetController.text}, ${userId.toString()}");
+                  print("token $token");
                   handleAddAddress(
-                    _buildingController.text,  // building name
-                    city.toString(), //city
-                    _contactController.text, // contact
-                    _landmarkController.text,  // landmark
-                    _nameController.text, //name
-                    _pinController.text, //pin
-                    state.toString(), //state
-                    _streetController.text, // street 
-                    userId.toString()); // user id
+                      _buildingController.text, // building name
+                      city.toString(), //city
+                      _contactController.text, // contact
+                      _landmarkController.text, // landmark
+                      _nameController.text, //name
+                      _pinController.text, //pin
+                      state.toString(), //state
+                      _streetController.text, // street
+                      userId.toString(), // user id
+                      token.toString()); 
+
+          //            Navigator.push(
+          // context,
+          // MaterialPageRoute(
+          //     builder: (context) => HomeNavigation(
+          //           selectedIndex: 3,
+          //           filter: 'address',
+                   
+                    
+          //         )));
                 }
               },
               style: ElevatedButton.styleFrom(

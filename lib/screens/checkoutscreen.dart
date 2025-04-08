@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_btn.dart';
 import 'package:skmecom/pocketbase_service.dart';
 import 'package:skmecom/provider/add_to_cart_provider.dart';
+import 'package:skmecom/store_local.dart';
 import 'package:skmecom/utils/constants.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -14,31 +17,36 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final AuthService authService = AuthService();
   final PocketBaseService pocketBaseService = PocketBaseService();
 
   bool isDelivery = false;
-  String orderDeliveryType = "Pickup";
-  String orderPaymentType = "Offline";
-  String orderComments= "";
-  String orderAddress= "";
+  String orderDeliveryType = "pickup";
+  String orderPaymentType = "offline";
+  String orderComments = "";
+  List result = [];
+  String selectedAddress = "";
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetchAllAddress();
+  }
 
   void handlePlaceOrder(
-      List<Map<String, dynamic>> products,
-      String deliveryType,
-      String paymentType,
-      String comments,
-      String address) async {
-    // Example data
-    // final products = [
-    //   {"product": "gaf58ffvo1rtud0", "quantity": 1}
-    // ];
-    // const deliveryType = "pickup";
-    // const paymentType = "offline";
-    // const comments = "No comments";
-    // const address = "123 Main St";
+    List<Map<String, dynamic>> products,
+    String deliveryType,
+    String paymentType,
+    String comments,
+    String address,
+  ) async {
+    Map<String, String?> credentials = await authService.getCredentials();
+    String? token = credentials['token'];
 
     // Call the `placeOrder` method
-    final isSuccess = await pocketBaseService.placeOrder(
+    final orderResponse = await pocketBaseService.placeOrder(
+      token: token.toString(),
       products: products,
       deliveryType: deliveryType,
       paymentType: paymentType,
@@ -46,14 +54,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       address: address,
     );
 
-    print(
-        "place order $products, $deliveryType, $paymentType, $comments, $address");
+    print("Place order response: $orderResponse");
 
-    // Show a success or error message
-    if (isSuccess) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Order placed successfully!")),
-      );
+    if (orderResponse != null) {
+      String receipt = orderResponse["order"]["receipt"] ?? "";
+      String message = orderResponse["message"] ?? "";
+
+      print("orderrrrrrr msg: $message");
+
+      showOrderSuccessDialog(context, receipt, message);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to place order.")),
@@ -61,31 +70,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
+  Future<void> fetchAllAddress() async {
+    Map<String, String?> credentials = await authService.getCredentials();
+    String? tokens = credentials['token'];
+    final addressJson = await pocketBaseService.fetchAddress(
+      collectionName: 'addresses',
+      token: tokens.toString(),
+      page: 1,
+      perPage: 500,
+      skipTotal: 1,
+    );
+
+    setState(() {
+      result = addressJson.cast<Map<String, dynamic>>() ?? [];
+      //  result = [];
+    });
+
+    print("Address list: $result");
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = CartProvider.of(context);
     final finalList = provider.cart;
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   // forceMaterialTransparency: true,
-      //   // scrolledUnderElevation: 0,
-      //   toolbarHeight: 80,
-      //   title: const Text("SKMCOMMERCE"),
-      //   actions: [
-      //     const SizedBox(width: 20),
-      //     Padding(
-      //       padding: EdgeInsets.only(right: 20),
-      //       child: IconButton(
-      //         icon: Icon(Remix.shopping_cart_2_line),
-      //         onPressed: () {
-      //           Navigator.push(context,
-      //               MaterialPageRoute(builder: (context) => CartScreen()));
-      //         },
-      //       ),
-      //     )
-      //   ],
-      // ),
       body: Container(
         color: const Color.fromARGB(198, 236, 233, 233),
         child: SingleChildScrollView(
@@ -135,13 +143,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
                                         image: DecorationImage(
-                                          //   image: AssetImage(
-                                          //       'assets/images/watch1.jpeg'),
-                                          //   // NetworkImage(
-                                          //   //     "https://commerce.sketchmonk.com/_pb/api/files/${cartItems.collectionId.toString()}/${cartItems.id}/${cartItems.images[0].toString()}"),
-                                          //   fit: BoxFit.cover,
-                                          // ),
-
                                           image:
                                               // AssetImage('assets/images/watch1.jpeg'),
                                               NetworkImage(
@@ -205,7 +206,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                           CrossAxisAlignment.end,
                                       children: [
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              setState(() {
+                                                provider
+                                                    .removeFromCart(cartItems);
+                                              });
+                                            },
                                             icon: const Icon(
                                               Icons.delete,
                                               color: Colors.red,
@@ -310,7 +316,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ToggleSwitch(
                             minWidth: 90.0,
                             cornerRadius: 10.0,
-                            activeBgColors: [
+                            activeBgColors: const [
                               [Colors.white],
                               [Colors.white]
                             ],
@@ -319,14 +325,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             inactiveFgColor: Colors.black,
                             initialLabelIndex: isDelivery ? 1 : 0,
                             totalSwitches: 2,
-                            labels: ['Pickup', 'Delivery'],
+                            labels: const ['Pickup', 'Delivery'],
                             borderWidth: 3.0,
-                            borderColor: [Color.fromARGB(198, 236, 233, 233)],
+                            borderColor: const [
+                              Color.fromARGB(198, 236, 233, 233)
+                            ],
                             // radiusStyle: true,
                             onToggle: (index) {
                               setState(() {
                                 isDelivery = index == 1;
-                                orderDeliveryType = isDelivery ? "Delivery" : "Pickup"; 
+                                orderDeliveryType =
+                                    isDelivery ? "delivery" : "pickup";
                               });
                               print('switched to: $index');
                             },
@@ -361,16 +370,66 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             const Divider(),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text("No Address added"),
-                                  CustomButton(
-                                    title: "+ Add Address",
-                                    onPressed: () {},
-                                  )
-                                ],
-                              ),
+                              child: result.isEmpty
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Text("No Address added"),
+                                        CustomButton(
+                                          title: "+ Add Address",
+                                          onPressed: () {},
+                                        )
+                                      ],
+                                    )
+                                  : Builder(
+                                      builder: (context) {
+                                        // Auto-select first address if nothing is selected
+                                        if (selectedAddress.isEmpty) {
+                                          selectedAddress = result[0]["id"];
+                                        }
+
+                                        return SizedBox(
+                                          height: 200,
+                                          child: ListView.builder(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 0, horizontal: 10),
+                                            itemCount: result.length,
+                                            itemBuilder: (context, index) {
+                                              final address = result[index];
+                                              return RadioListTile<String>(
+                                                value: address["id"]!,
+                                                groupValue: selectedAddress,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    selectedAddress =
+                                                        value.toString();
+                                                  });
+
+                                                  print(
+                                                      "selected address $selectedAddress");
+                                                },
+                                                title: Text(
+                                                  address["name"]!,
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16),
+                                                ),
+                                                subtitle: Text(
+                                                  "${address["building"]}, ${address["street"]}, ${address["pin"]}",
+                                                  style: const TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14),
+                                                ),
+                                                activeColor:
+                                                    AppColors.primarycolor,
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
                             )
                           ],
                         ),
@@ -380,8 +439,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     const SizedBox(height: 16),
 
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10)),
@@ -399,22 +458,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ToggleSwitch(
                             minWidth: 90.0,
                             cornerRadius: 10.0,
-                            activeBgColors: [
+                            activeBgColors: const [
                               [Colors.white],
                               [Colors.white]
                             ],
                             activeFgColor: Colors.black,
-                            inactiveBgColor: Color.fromARGB(198, 236, 233, 233),
+                            inactiveBgColor:
+                                const Color.fromARGB(198, 236, 233, 233),
                             inactiveFgColor: Colors.black,
                             initialLabelIndex: 0,
                             totalSwitches: 2,
-                            labels: ['Offline', 'Online'],
+                            labels: const ['Offline', 'Online'],
                             borderWidth: 3.0,
-                            borderColor: [Color.fromARGB(198, 236, 233, 233)],
+                            borderColor: const [
+                              Color.fromARGB(198, 236, 233, 233)
+                            ],
                             // radiusStyle: true,
                             onToggle: (index) {
                               setState(() {
-                                 orderPaymentType = index == 1 ? "Offline" : "Offline"; 
+                                orderPaymentType =
+                                    index == 1 ? "offline" : "offline";
                               });
                               print('switched to: $index');
                             },
@@ -451,6 +514,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 TextField(
+                                  onChanged: (value) {
+                                    orderComments = value;
+                                  },
                                   maxLines:
                                       3, // Adjust for the height of the input
                                   decoration: InputDecoration(
@@ -487,8 +553,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   .quantity // Assuming each item in finalList has a `quantity`
                             };
                           }).toList();
+
+                          print(
+                              "$products, $orderDeliveryType, $orderPaymentType, $orderComments, $selectedAddress");
                           handlePlaceOrder(
-                              products, orderDeliveryType, orderPaymentType, orderComments, orderAddress);
+                              products,
+                              orderDeliveryType,
+                              orderPaymentType,
+                              orderComments,
+                              selectedAddress.toString());
                         },
                       ),
                     ),
@@ -501,5 +574,86 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       ),
     );
+  }
+
+  void showOrderSuccessDialog(BuildContext context, String receipt, String order
+      //  Map<String, dynamic> order
+      ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 10),
+                  Text(
+                    'Order Placed',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(text: 'Your order'),
+                    TextSpan(
+                      text: receipt,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const TextSpan(text: 'has been placed successfully.\n'),
+                  ],
+                ),
+              ),
+              Text(order),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(FontAwesomeIcons.whatsapp, color: Colors.white),
+            onPressed: () {
+              shareOrderOnWhatsApp(receipt, order);
+            },
+            label: const Text(
+              "Send to WhatsApp",
+              style: TextStyle(color: Colors.white),
+            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+          )
+        ],
+      ),
+    );
+  }
+
+  void shareOrderOnWhatsApp(String receipt, String order) async {
+    String message = "**Order #$receipt has been placed successfully.\n";
+    message += order;
+
+    final whatsappUrl = "https://wa.me/?text=${Uri.encodeComponent(message)}";
+
+    if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+      await launchUrl(Uri.parse(whatsappUrl),
+          mode: LaunchMode.externalApplication);
+    } else {
+      print("WhatsApp not installed or URL can't be launched.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("WhatsApp not installed or URL can't be launched.")),
+      );
+    }
   }
 }

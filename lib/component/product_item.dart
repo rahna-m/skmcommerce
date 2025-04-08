@@ -20,10 +20,6 @@ class ProductItem extends StatefulWidget {
 class _ProductItemState extends State<ProductItem> {
   TextEditingController _countController = TextEditingController();
 
-  // List<String>? get productImages {
-  //   return widget.productData?.images;
-  // }
-
   cartCoutIncrease() {
     setState(() {
       _countController.text = (int.parse(_countController.text) + 1).toString();
@@ -76,9 +72,6 @@ class _ProductItemState extends State<ProductItem> {
                                   topLeft: Radius.circular(8),
                                   bottomLeft: Radius.circular(8)),
                               child: Image.network(
-                                // "assets/images/watch1.jpeg",
-
-                                // "https://commerce.sketchmonk.com/_pb/api/files/kdhrswxqb1qh3yw/gaf58ffvo1rtud0/watch_01_s8WuhlQGei.jpeg",
                                 "https://commerce.sketchmonk.com/_pb/api/files/${widget.productData!.collectionId.toString()}/${widget.productData!.id}/${widget.productData!.images[0].toString()}",
                                 // width: 100,
                                 // height: 100,
@@ -262,53 +255,35 @@ class _ProductItemState extends State<ProductItem> {
             ),
           ),
         ),
-        Stack(
-          children: [
-            Transform.translate(
-              offset: Offset(83.5.w, 10),
-              // offset: Offset(85.2.w, 10),
-              child: Container(
-                decoration: const BoxDecoration(
-                    color: AppColors.offerbackgroundcolor,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        bottomLeft: Radius.circular(8),
-                        topRight: Radius.circular(8))),
-                height: 22,
-                width: 50,
-                child: const Center(
-                    child: Text(
-                  "20% OFF",
-                  style: TextStyle(
-                      color: AppColors.backgroundColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 9),
-                )),
-              ),
-            ),
-            Transform.translate(
-              offset: Offset(94.5.w, 31.6),
-              // offset: Offset(95.w, 31.6),
-              child: CustomPaint(
-                painter: TrianglePainter(
-                  strokeColor: const Color.fromARGB(255, 43, 129, 0),
-                  strokeWidth: 10,
-                  paintingStyle: PaintingStyle.fill,
-                ),
-                child: Container(
-                  height: 10,
-                  width: 10,
-                ),
-              ),
-            )
-          ],
-        ),
       ],
     );
   }
 
   Future<dynamic> addPopup(BuildContext context) {
-     final provider = CartProvider.of(context, listen: false);
+    final provider = CartProvider.of(context, listen: false);
+
+    Widget productQuantity(IconData icon,
+        {Product? product, Color color = Colors.black}) {
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            if (icon == Icons.add) {
+              provider.incrementQtn(product: product);
+            } else {
+              provider.decrementQtn(product: product);
+            }
+
+             final updatedQuantity = provider.getProductQuantity(product!);
+        _countController.text = updatedQuantity.toString();
+          });
+        },
+        child: Icon(
+          icon,
+          color: color,
+        ),
+      );
+    }
+
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -320,10 +295,6 @@ class _ProductItemState extends State<ProductItem> {
               titlePadding: EdgeInsets.zero,
               iconPadding: EdgeInsets.zero,
               insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-              // icon: Icon(
-              //   Icons.question_mark,
-              //   size: 40,
-              // ),
               content: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -355,10 +326,11 @@ class _ProductItemState extends State<ProductItem> {
                     //  const PopUpItem(),
                     PopUpItem(
                       productName: widget.productData?.name ?? "No Name",
-                      discountAmount: widget.productData?.discountPrice.toString() ??
-                          "0.00",
-                           actualAmount: widget.productData?.actualPrice.toString() ??
-                          "0.00",
+                      discountAmount:
+                          widget.productData?.discountPrice.toString() ??
+                              "0.00",
+                      actualAmount:
+                          widget.productData?.actualPrice.toString() ?? "0.00",
                       imageUrl:
                           "https://commerce.sketchmonk.com/_pb/api/files/${widget.productData?.collectionId}/${widget.productData?.id}/${widget.productData?.images[0]}",
                     ),
@@ -366,25 +338,27 @@ class _ProductItemState extends State<ProductItem> {
                       height: 10,
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        InkWell(
-                          onTap: () => cartCoutDecrease(),
-                          child: Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.graycolor),
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(8),
-                                    bottomLeft: Radius.circular(8))),
-                            child: const Center(
-                                child: Text(
-                              "-",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
-                            )),
-                          ),
-                        ),
+                       
+
+                               Container(
+                                 height: 30,
+                                 width: 30,
+                                 decoration: BoxDecoration(
+                                     border: Border.all(color: AppColors.graycolor),
+                                     borderRadius: const BorderRadius.only(
+                                         topLeft: Radius.circular(8),
+                                         bottomLeft: Radius.circular(8))),
+                                 child:  productQuantity(Icons.remove,
+                            product: widget.productData),
+                                //  const Center(
+                                //      child: Text(
+                                //    "-",
+                                //    style: TextStyle(
+                                //        fontWeight: FontWeight.bold, fontSize: 20),
+                                //  )),
+                               ),
                         Container(
                             decoration: BoxDecoration(
                                 border: Border.all(color: AppColors.graycolor)),
@@ -409,24 +383,23 @@ class _ProductItemState extends State<ProductItem> {
                                     ),
                                   )),
                             )),
-                        InkWell(
-                          onTap: () => cartCoutIncrease(),
-                          child: Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.graycolor),
-                                borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(8),
-                                    bottomRight: Radius.circular(8))),
-                            child: const Center(
-                                child: Text(
-                              "+",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
-                            )),
-                          ),
-                        ),
+                      
+                             Container(
+                               height: 30,
+                               width: 30,
+                               decoration: BoxDecoration(
+                                   border: Border.all(color: AppColors.graycolor),
+                                   borderRadius: const BorderRadius.only(
+                                       topRight: Radius.circular(8),
+                                       bottomRight: Radius.circular(8))),
+                               child:    productQuantity(Icons.add, product: widget.productData),
+                              //  const Center(
+                              //      child: Text(
+                              //    "+",
+                              //    style: TextStyle(
+                              //        fontWeight: FontWeight.bold, fontSize: 20),
+                              //  )),
+                             ),
                       ],
                     ),
                     const SizedBox(
@@ -461,49 +434,40 @@ class _ProductItemState extends State<ProductItem> {
                             ),
                             color: AppColors.primarycolor,
                             onPressed: () {
+                              final quantity =
+                                  int.tryParse(_countController.text) ?? 1;
 
-                               final quantity = int.tryParse(_countController.text) ?? 1;
-                             
-                                      //  final cartProvider = CartProvider.of(context, listen: false);
-                                      Product product = Product(
-                                          actualPrice:
-                                              widget.productData!.actualPrice,
-                                          addons: widget.productData!.addons,
-                                          category:
-                                              widget.productData!.category,
-                                          collectionId:
-                                              widget.productData!.collectionId,
-                                          collectionName: widget
-                                              .productData!.collectionName,
-                                          created: widget.productData!.created,
-                                          description:
-                                              widget.productData!.description,
-                                          discountPrice:
-                                              widget.productData!.discountPrice,
-                                          expand: widget.productData!.expand,
-                                          featured:
-                                              widget.productData!.featured,
-                                          id: widget.productData!.id,
-                                          images: widget.productData!.images,
-                                          name: widget.productData!.name,
-                                          slug: widget.productData!.slug,
-                                          updated: widget.productData!.updated,
-                                           quantity: quantity
-                                          );
-                                         
-                                          
-                                         
-                                      provider.toogleFavorite(product);
+                              //  final cartProvider = CartProvider.of(context, listen: false);
+                              Product product = Product(
+                                  actualPrice: widget.productData!.actualPrice,
+                                  addons: widget.productData!.addons,
+                                  category: widget.productData!.category,
+                                  collectionId:
+                                      widget.productData!.collectionId,
+                                  collectionName:
+                                      widget.productData!.collectionName,
+                                  created: widget.productData!.created,
+                                  description: widget.productData!.description,
+                                  discountPrice:
+                                      widget.productData!.discountPrice,
+                                  expand: widget.productData!.expand,
+                                  featured: widget.productData!.featured,
+                                  id: widget.productData!.id,
+                                  images: widget.productData!.images,
+                                  name: widget.productData!.name,
+                                  slug: widget.productData!.slug,
+                                  updated: widget.productData!.updated,
+                                  quantity: quantity);
 
-                                      print("add to cart data $product");
-                                         print("Add to cart with quantity: $quantity");
+                              provider.toogleFavorite(product);
 
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CartScreen()));
-                                 
+                              // print("add to cart data $product");
+                              // print("Add to cart with quantity: $quantity");
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CartScreen()));
                             },
                             child: Row(
                               children: [
@@ -548,10 +512,6 @@ class _ProductItemState extends State<ProductItem> {
               titlePadding: EdgeInsets.zero,
               iconPadding: EdgeInsets.zero,
               insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-              // icon: Icon(
-              //   Icons.question_mark,
-              //   size: 40,
-              // ),
               content: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                 child: SizedBox(
@@ -563,15 +523,6 @@ class _ProductItemState extends State<ProductItem> {
                     children: [
                       Stack(
                         children: [
-                          // Container(
-                          //   child: Image.network(
-                          //     // "assets/images/watch1.jpeg",
-                          //      "https://commerce.sketchmonk.com/_pb/api/files/${widget.productData!.collectionId.toString()}/${widget.productData!.id}/${widget.productData!.images[0].toString()}",
-                          //     width: 100.w,
-                          //     height: 40.h,
-                          //     fit: BoxFit.cover,
-                          //   ),
-                          // ),
                           CarouselSlider(
                             options: CarouselOptions(
                               height: MediaQuery.of(context).size.height * 0.4,
@@ -618,7 +569,6 @@ class _ProductItemState extends State<ProductItem> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    // "Rolex sgfjhdgsjkfgdjsfjd dsdgfdgfgdf iueyrhvrtj",
                                     widget.productData!.name,
                                     style: TextStyle(
                                         color: AppColors.textcolor,
@@ -661,7 +611,6 @@ class _ProductItemState extends State<ProductItem> {
                               height: 10,
                             ),
                             Text(
-                              // "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has ",
                               widget.productData!.description,
                               style: TextStyle(
                                   color: AppColors.subTextColor,
@@ -727,7 +676,6 @@ class _ProductItemState extends State<ProductItem> {
                                     ),
                                     color: AppColors.primarycolor,
                                     onPressed: () {
-                                      //  final cartProvider = CartProvider.of(context, listen: false);
                                       Product product = Product(
                                           actualPrice:
                                               widget.productData!.actualPrice,

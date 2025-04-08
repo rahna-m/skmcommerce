@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import 'package:skmecom/component/triangle_widget.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class PopUpItem extends StatelessWidget {
-    final String productName;
+  final String productName;
   final String discountAmount;
   final String actualAmount;
   final String imageUrl;
@@ -53,7 +52,7 @@ class PopUpItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
+              const SizedBox(
                   width: 10,
                 ),
                 Expanded(
@@ -61,7 +60,7 @@ class PopUpItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
+                      const  SizedBox(
                           height: 5,
                         ),
                         Row(
@@ -80,7 +79,7 @@ class PopUpItem extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(
+                       const SizedBox(
                           height: 4,
                         ),
                         Container(
@@ -99,7 +98,7 @@ class PopUpItem extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(
+                      const  SizedBox(
                           height: 4,
                         ),
                         Row(
@@ -113,7 +112,7 @@ class PopUpItem extends StatelessWidget {
                                   color: AppColors.subTextColor,
                                   fontWeight: FontWeight.w600),
                             ),
-                            SizedBox(
+                          const  SizedBox(
                               width: 5,
                             ),
                             Text(
@@ -126,7 +125,7 @@ class PopUpItem extends StatelessWidget {
                             )
                           ],
                         ),
-                        SizedBox(
+                       const SizedBox(
                           height: 10,
                         ),
                       ],
@@ -137,45 +136,45 @@ class PopUpItem extends StatelessWidget {
             ),
           ),
         ),
-        Stack(
-          children: [
-            Transform.translate(
-              offset: Offset(66.7.w, 10),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: AppColors.offerbackgroundcolor,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        bottomLeft: Radius.circular(8),
-                        topRight: Radius.circular(8))),
-                height: 22,
-                width: 50,
-                child: Center(
-                    child: Text(
-                  "20% OFF",
-                  style: TextStyle(
-                      color: AppColors.backgroundColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 9),
-                )),
-              ),
-            ),
-            Transform.translate(
-              offset: Offset(77.8.w, 31.6),
-              child: CustomPaint(
-                painter: TrianglePainter(
-                  strokeColor: Color.fromARGB(255, 43, 129, 0),
-                  strokeWidth: 10,
-                  paintingStyle: PaintingStyle.fill,
-                ),
-                child: Container(
-                  height: 10,
-                  width: 10,
-                ),
-              ),
-            )
-          ],
-        ),
+        // Stack(
+        //   children: [
+        //     Transform.translate(
+        //       offset: Offset(66.7.w, 10),
+        //       child: Container(
+        //         decoration: BoxDecoration(
+        //             color: AppColors.offerbackgroundcolor,
+        //             borderRadius: BorderRadius.only(
+        //                 topLeft: Radius.circular(8),
+        //                 bottomLeft: Radius.circular(8),
+        //                 topRight: Radius.circular(8))),
+        //         height: 22,
+        //         width: 50,
+        //         child: Center(
+        //             child: Text(
+        //           "20% OFF",
+        //           style: TextStyle(
+        //               color: AppColors.backgroundColor,
+        //               fontWeight: FontWeight.w500,
+        //               fontSize: 9),
+        //         )),
+        //       ),
+        //     ),
+        //     Transform.translate(
+        //       offset: Offset(77.8.w, 31.6),
+        //       child: CustomPaint(
+        //         painter: TrianglePainter(
+        //           strokeColor: Color.fromARGB(255, 43, 129, 0),
+        //           strokeWidth: 10,
+        //           paintingStyle: PaintingStyle.fill,
+        //         ),
+        //         child: Container(
+        //           height: 10,
+        //           width: 10,
+        //         ),
+        //       ),
+        //     )
+        //   ],
+        // ),
       ],
     );
   }

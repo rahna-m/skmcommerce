@@ -8,7 +8,9 @@ class AuthService {
       String token,
       String? userId,
       String? email,
-      String? name) async {
+      String? name, 
+      String? avatar
+      ) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // await prefs.setString('password', password);
@@ -18,6 +20,7 @@ class AuthService {
 
     await prefs.setString('email', email!);
     await prefs.setString('name', name!);
+        await prefs.setString('avatar', avatar!);
     // await prefs.setBool('verified', verified!);
 
     print("saved username $username");
@@ -25,6 +28,7 @@ class AuthService {
     print("saved userId $userId");
     print("saved email $email");
     print("saved name $name");
+        print("saved avatar $avatar");
   }
 
   // Retrieve username and password
@@ -35,12 +39,14 @@ class AuthService {
     String? token = prefs.getString('token');
     String? email = prefs.getString('email');
     String? name = prefs.getString('name');
+     String? avatar = prefs.getString('avatar');
 
     print("get username $username");
     print("get token $token");
     print("get userId $userId");
     print("get email $email");
     print("get name $name");
+     print("get avatar $avatar");
 
     //  String? verified = prefs.getString('verified');
     return {
@@ -48,7 +54,8 @@ class AuthService {
       'userId': userId,
       'token': token,
       'email': email,
-      'name': name
+      'name': name,
+          'avatar': avatar
     };
   }
 
@@ -60,5 +67,6 @@ class AuthService {
     await prefs.remove('token');
     await prefs.remove('email');
     await prefs.remove('name');
+    await prefs.remove('avatar');
   }
 }

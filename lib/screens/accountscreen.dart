@@ -1,7 +1,9 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:skmecom/component/address_card.dart';
 import 'package:skmecom/component/address_drawer.dart';
+import 'package:skmecom/component/confirmpopup.dart';
 import 'package:skmecom/component/custom_btn.dart';
 import 'package:skmecom/pocketbase_service.dart';
 import 'package:skmecom/screens/loginscreen.dart';
@@ -9,19 +11,19 @@ import 'package:skmecom/store_local.dart';
 import 'package:skmecom/utils/constants.dart';
 
 class AccountScreen extends StatefulWidget {
-    final int initialTabIndex;
+  final int initialTabIndex;
 
   const AccountScreen({super.key, this.initialTabIndex = 0});
-
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();
 }
 
-class _AccountScreenState extends State<AccountScreen> with SingleTickerProviderStateMixin {
+class _AccountScreenState extends State<AccountScreen>
+    with SingleTickerProviderStateMixin {
   final AuthService authService = AuthService();
   final PocketBaseService pocketBaseService = PocketBaseService();
-
+  String? _avatar;
   String? _name;
   String? _email;
   String? _username;
@@ -29,21 +31,18 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
-   late TabController _tabController;
-
-  // Future<void> fetchUserDetails() async {
-  //   final userRecord = await pocketBaseService.fetchUserById('64994269jmq2f43');
-  //   print(userRecord);
-  // }
-
- 
-
+  late TabController _tabController;
+  List result = [];
+  String? token;
 
   @override
   void initState() {
     super.initState();
     getUserCredentials();
-    _tabController = TabController(length: 2, vsync: this,  initialIndex: widget.initialTabIndex);
+    fetchAllAddress();
+    _tabController = TabController(
+        length: 2, vsync: this, initialIndex: widget.initialTabIndex);
+    // fetchAllAddress();
   }
 
   @override
@@ -60,9 +59,11 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     Map<String, String?> credentials = await authService.getCredentials();
     setState(() {
       _username = credentials['username'];
+      _avatar = credentials['avatar'];
       _name = credentials['name'];
       _email = credentials['email'];
       userId = credentials['userId'];
+      token = credentials['token'];
 
       usernameController.text = _username ?? '';
       nameController.text = _name ?? '';
@@ -70,9 +71,8 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
     });
 
     print("get _userId on account $userId");
+    print("get _avatar on account $_avatar");
   }
-
- 
 
   PlatformFile? selectedFile;
 
@@ -81,6 +81,7 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
       // Open the file picker to select an image
       final result = await FilePicker.platform.pickFiles(
         type: FileType.image,
+        withData: true, // Ensure bytes are loaded
       );
 
       if (result != null && result.files.isNotEmpty) {
@@ -88,12 +89,32 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
           selectedFile = result.files.first;
         });
         print("File picked: ${selectedFile!.name}");
+        print("File bytes length: ${selectedFile!.bytes?.length}");
       } else {
         print("No file selected");
       }
     } catch (e) {
       print("Error picking file: $e");
     }
+  }
+
+  Future<void> fetchAllAddress() async {
+    Map<String, String?> credentials = await authService.getCredentials();
+    String? tokens = credentials['token'];
+    final addressJson = await pocketBaseService.fetchAddress(
+      collectionName: 'addresses',
+      token: tokens.toString(),
+      page: 1,
+      perPage: 500,
+      skipTotal: 1,
+    );
+
+    setState(() {
+       result = addressJson.cast<Map<String, dynamic>>() ?? [];
+      //  result = [];
+    });
+
+    print("Address list: $result");
   }
 
   @override
@@ -105,20 +126,20 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
           backgroundColor: Colors.white,
           toolbarHeight: 0,
           // title: const Text("Account"),
-          bottom:  TabBar(
+          bottom: TabBar(
             controller: _tabController,
             tabAlignment: TabAlignment.center,
             indicatorColor: AppColors.primarycolor,
             labelColor: AppColors.primarycolor,
             unselectedLabelColor: Colors.black54,
-            tabs: [
+            tabs: const [
               Tab(text: "Profile"),
               Tab(text: "Addresses"),
             ],
           ),
         ),
         body: TabBarView(
-           controller: _tabController,
+          controller: _tabController,
           children: [
             // Profile Tab Content
             SingleChildScrollView(
@@ -154,38 +175,47 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                           Center(
                             child: Column(
                               children: [
-                                // Avatar Upload Section
-
                                 GestureDetector(
                                   onTap: pickFile,
                                   child: CircleAvatar(
                                     radius: 50,
                                     backgroundColor: Colors.grey[200],
-                                    backgroundImage: selectedFile != null
+                                    backgroundImage: selectedFile != null &&
+                                            selectedFile!.bytes != null
                                         ? MemoryImage(selectedFile!.bytes!)
-                                        : null,
-                                    child: selectedFile == null
+                                        : (_avatar != null &&
+                                                _avatar!.isNotEmpty
+                                            ?
+                                            // NetworkImage(_avatar!)
+                                            //     as ImageProvider
+                                            NetworkImage(
+                                                    "https://commerce.sketchmonk.com/_pb/api/files/_pb_users_auth_/${userId.toString()}/$_avatar")
+                                                as ImageProvider
+                                            : null),
+                                    child: (selectedFile == null &&
+                                            (_avatar == null ||
+                                                _avatar!.isEmpty))
                                         ? const Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
                                             children: [
                                               Icon(
-                                                Remix.image_add_line,
+                                                Icons.add_a_photo,
                                                 color: Colors.black45,
                                                 size: 20,
                                               ),
-                                              Text("Upload")
+                                              Text("Upload"),
                                             ],
                                           )
                                         : null,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  "Upload an image to set as your avatar",
-                                  style: TextStyle(
+                                Text(
+                                  (_avatar != null && _avatar!.isNotEmpty)
+                                      ? "Click on the image to change"
+                                      : "Upload an image to set as your avatar",
+                                  style: const TextStyle(
                                       fontSize: 14, color: Colors.black54),
                                 ),
                               ],
@@ -279,12 +309,20 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                   onPressed: () {
-                                    final data = {
-                                      "name": nameController.text,
-                                    };
+                                    // final data = {
+                                    final name = nameController.text.trim();
+                                    // };
+
+                                    print(
+                                        "selected image file ${selectedFile}");
 
                                     pocketBaseService.updateUser(
-                                        userId.toString(), data);
+                                        context,
+                                        userId.toString(),
+                                        token.toString(),
+                                        name,
+                                        selectedFile);
+                                    // pickAvatarAndUpdateUser(userId.toString());
                                   },
                                 )),
                           ),
@@ -339,28 +377,83 @@ class _AccountScreenState extends State<AccountScreen> with SingleTickerProvider
             ),
 
             // Addresses Tab Content
-            Center(
-                child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text("No Addresses found"),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  CustomButton(
-                    title: "+ Add Address",
+            Stack(
+              children: [
+                result.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text("No Addresses found"),
+                              const SizedBox(height: 10),
+                              CustomButton(
+                                title: "+ Add Address",
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AddressDrawer(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: result.length,
+                        itemBuilder: (context, index) {
+                          final address = result[index];
+
+                          return AddressCard(
+                            name: address["name"] ?? "",
+                            street:
+                                "${address["building"]}, ${address["street"]} - ${address["pin"]}",
+                            cityState:
+                                "${address["city"]} - ${address["state"]}",
+                            onEdit: () {
+                              print("Edit tapped for ${address["name"]}");
+                            },
+                            onDelete: () {
+                              print("Delete tapped for ${address["name"]}");
+                              String recordId = address["id"].toString();
+                              ConfirmPopup.show(
+                                context,
+                                recordId,
+                                token.toString(),
+                                pocketBaseService,
+                                () {
+                                  setState(() {
+                                    fetchAllAddress(); // Refresh the address list
+                                  });
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+               result.isEmpty ? SizedBox() : Positioned(
+                  bottom: 20,
+                  right: 20,
+                  child: FloatingActionButton(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AddressDrawer()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddressDrawer(),
+                        ),
+                      );
                     },
-                  )
-                ],
-              ),
-            )),
+                    backgroundColor: AppColors.primarycolor,
+                    child: const Icon(Icons.add, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

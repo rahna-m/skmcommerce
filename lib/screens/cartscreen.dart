@@ -39,21 +39,39 @@ class _CartScreenState extends State<CartScreen> {
     final provider = CartProvider.of(context);
     final finalList = provider.cart;
 
-    productQuantity(IconData icon, int index, {Color color = Colors.black}) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            icon == Icons.add
-                ? provider.incrementQtn(index)
-                : provider.decrementQtn(index);
-          });
-        },
-        child: Icon(
-          icon,
-          color: color, // Set icon color here
-        ),
-      );
-    }
+    // productQuantity(IconData icon, int index, {Color color = Colors.black}) {
+    //   return GestureDetector(
+    //     onTap: () {
+    //       setState(() {
+    //         icon == Icons.add
+    //             ? provider.incrementQtn(index)
+    //             : provider.decrementQtn(index);
+    //       });
+    //     },
+    //     child: Icon(
+    //       icon,
+    //       color: color, // Set icon color here
+    //     ),
+    //   );
+    // }
+
+     Widget productQuantity(IconData icon, {int? index, Color color = Colors.black}) {
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        if (icon == Icons.add) {
+          provider.incrementQtn(index: index);
+        } else {
+          provider.decrementQtn(index: index);
+        }
+      });
+    },
+    child: Icon(
+      icon,
+      color: color,
+    ),
+  );
+}
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -139,7 +157,7 @@ class _CartScreenState extends State<CartScreen> {
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     Flexible(
-                                      child: productQuantity(Icons.remove, i),
+                                      child: productQuantity(Icons.remove, index: i),
                                     ),
                                     SizedBox(
                                       width: 50,
@@ -165,7 +183,7 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                     ),
                                     Flexible(
-                                      child: productQuantity(Icons.add, i),
+                                      child: productQuantity(Icons.add, index: i),
                                     ),
                                   ],
                                 ),
@@ -262,30 +280,35 @@ class _CartScreenState extends State<CartScreen> {
                 // ),
 
                 CustomButton(
-  title: "Checkout",
-  onPressed: finalList.isNotEmpty
-      ? () {
-          if (_username != null && _username!.isNotEmpty) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomeNavigation(
-                  showCheckout: true, // Set this flag to true
+                  title: "Checkout",
+                  onPressed: finalList.isNotEmpty
+                      ? () {
+                          if (_username != null && _username!.isNotEmpty) {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const HomeNavigation(
+                            //       // showCheckout: true, // Set this flag to true
+                            //     ),
+                            //   ),
+                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CheckoutScreen(),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
+                          }
+                        }
+                      : null, // Disable the button when finallist is empty
                 ),
-              ),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LoginScreen(),
-              ),
-            );
-          }
-        }
-      : null, // Disable the button when finallist is empty
-),
-
               ],
             )
           ],
