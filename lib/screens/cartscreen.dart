@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:skmecom/component/custom_btn.dart';
+import 'package:skmecom/component/product_quantity_widget.dart';
 import 'package:skmecom/provider/add_to_cart_provider.dart';
 import 'package:skmecom/screens/checkoutscreen.dart';
-import 'package:skmecom/screens/home_navigation.dart';
 import 'package:skmecom/screens/loginscreen.dart';
 import 'package:skmecom/store_local.dart';
 import 'package:skmecom/utils/constants.dart';
@@ -29,8 +29,6 @@ class _CartScreenState extends State<CartScreen> {
     Map<String, String?> credentials = await authService.getCredentials();
     setState(() {
       _username = credentials['username'];
-
-      // _password = credentials['password'];
     });
   }
 
@@ -39,39 +37,24 @@ class _CartScreenState extends State<CartScreen> {
     final provider = CartProvider.of(context);
     final finalList = provider.cart;
 
-    // productQuantity(IconData icon, int index, {Color color = Colors.black}) {
+    // Widget productQuantity(IconData icon,
+    //     {int? index, Color color = Colors.black}) {
     //   return GestureDetector(
     //     onTap: () {
     //       setState(() {
-    //         icon == Icons.add
-    //             ? provider.incrementQtn(index)
-    //             : provider.decrementQtn(index);
+    //         if (icon == Icons.add) {
+    //           provider.incrementQtn(index: index);
+    //         } else {
+    //           provider.decrementQtn(index: index);
+    //         }
     //       });
     //     },
     //     child: Icon(
     //       icon,
-    //       color: color, // Set icon color here
+    //       color: color,
     //     ),
     //   );
     // }
-
-     Widget productQuantity(IconData icon, {int? index, Color color = Colors.black}) {
-  return GestureDetector(
-    onTap: () {
-      setState(() {
-        if (icon == Icons.add) {
-          provider.incrementQtn(index: index);
-        } else {
-          provider.decrementQtn(index: index);
-        }
-      });
-    },
-    child: Icon(
-      icon,
-      color: color,
-    ),
-  );
-}
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -84,7 +67,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: Column(
         children: [
-          Divider(),
+          const Divider(),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Align(
@@ -94,24 +77,22 @@ class _CartScreenState extends State<CartScreen> {
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                 )),
           ),
-          Divider(),
-          // Expanded(child: Center(child: Text("No Data"),))
+          const Divider(),
           Expanded(
             child: ListView.separated(
                 separatorBuilder: (context, i) {
-                  return Divider();
+                  return const Divider();
                 },
                 scrollDirection: Axis.vertical,
                 itemCount: finalList.length,
                 itemBuilder: (context, i) {
                   final cartItems = finalList[i];
-                  // print("cart data $cartItems");
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 20),
                     child: Row(
                       children: [
-                        // Product Image
                         Container(
                           width: 80,
                           height: 80,
@@ -143,51 +124,64 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              Container(
-                                width: 30.w,
-                                height: 35,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  // color: Colors.black,
-                                  border:
-                                      Border.all(color: Colors.grey, width: 2),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Flexible(
-                                      child: productQuantity(Icons.remove, index: i),
-                                    ),
-                                    SizedBox(
-                                      width: 50,
-                                      child: Container(
-                                        decoration: const BoxDecoration(
-                                          border: Border.symmetric(
-                                              vertical: BorderSide(
-                                                  color: Colors.grey,
-                                                  width: 2)),
-                                          // borderRadius: const BorderRadius.only(
-                                          //   topRight: Radius.circular(8),
-                                          //   bottomRight: Radius.circular(8),
-                                          // ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            cartItems.quantity.toString(),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      child: productQuantity(Icons.add, index: i),
-                                    ),
-                                  ],
+                              SizedBox(
+                                width: 150,
+                                child: 
+                                buildProductQuantityWidget(
+                                  context: context,
+                                  product: cartItems,
+                                  // index: i,
+                                  showTextField: true,
                                 ),
                               ),
+                              // Container(
+                              //   width: 30.w,
+                              //   height: 35,
+                              //   decoration: BoxDecoration(
+                              //     borderRadius: BorderRadius.circular(10),
+                              //     // color: Colors.black,
+                              //     border:
+                              //         Border.all(color: Colors.grey, width: 2),
+                              //   ),
+                              //   child: Row(
+                              //     mainAxisAlignment:
+                              //         MainAxisAlignment.spaceAround,
+                              //     children: [
+                              //       Flexible(
+                              //         child:
+                              //         productQuantity(Icons.remove,
+                              //             index: i),
+                              //       ),
+                              //       SizedBox(
+                              //         width: 50,
+                              //         child: Container(
+                              //           decoration: const BoxDecoration(
+                              //             border: Border.symmetric(
+                              //                 vertical: BorderSide(
+                              //                     color: Colors.grey,
+                              //                     width: 2)),
+                              //             // borderRadius: const BorderRadius.only(
+                              //             //   topRight: Radius.circular(8),
+                              //             //   bottomRight: Radius.circular(8),
+                              //             // ),
+                              //           ),
+                              //           child: Center(
+                              //             child: Text(
+                              //               cartItems.quantity.toString(),
+                              //               style: const TextStyle(
+                              //                   fontWeight: FontWeight.bold,
+                              //                   color: Colors.black),
+                              //             ),
+                              //           ),
+                              //         ),
+                              //       ),
+                              //       Flexible(
+                              //         child:
+                              //             productQuantity(Icons.add, index: i),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -253,45 +247,11 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(
                   width: 10,
                 ),
-                // CustomButton(
-                //   title: "Checkout",
-                //   onPressed: () {
-                //     if (_username != null && _username!.isNotEmpty) {
-                //       //   Navigator.push(
-                //       // context,
-                //       // MaterialPageRoute(
-                //       //     builder: (context) => CheckoutScreen()));
-
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //           builder: (context) => const HomeNavigation(
-                //             showCheckout: true, // Set this flag to true
-                //           ),
-                //         ),
-                //       );
-                //     } else {
-                //       Navigator.push(
-                //           context,
-                //           MaterialPageRoute(
-                //               builder: (context) => LoginScreen()));
-                //     }
-                //   },
-                // ),
-
                 CustomButton(
                   title: "Checkout",
                   onPressed: finalList.isNotEmpty
                       ? () {
                           if (_username != null && _username!.isNotEmpty) {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => const HomeNavigation(
-                            //       // showCheckout: true, // Set this flag to true
-                            //     ),
-                            //   ),
-                            // );
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -307,7 +267,7 @@ class _CartScreenState extends State<CartScreen> {
                             );
                           }
                         }
-                      : null, // Disable the button when finallist is empty
+                      : null,
                 ),
               ],
             )
@@ -382,8 +342,8 @@ class ClearPopup {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      provider.clearCart(); // Clear the cart
-                      Navigator.of(context).pop(); // Close the dialog
+                      provider.clearCart();
+                      Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(

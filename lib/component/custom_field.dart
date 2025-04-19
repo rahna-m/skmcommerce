@@ -46,7 +46,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         Row(
           children: [
             if (widget.isRequired!)
-              Text(
+            const  Text(
                 "* ",
                 style: TextStyle(color: Colors.red),
               ),
@@ -56,7 +56,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ),
           ],
         ),
-        SizedBox(height: 10),
+       const SizedBox(height: 10),
         // SizedBox(
         //   height: 50,
         //   child: 

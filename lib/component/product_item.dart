@@ -1,12 +1,11 @@
-import 'package:carousel_slider/carousel_slider.dart';
+
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
-import 'package:skmecom/component/popup_item.dart';
-import 'package:skmecom/component/triangle_widget.dart';
+import 'package:skmecom/component/product_detailed_popup.dart';
+import 'package:skmecom/component/product_popup.dart';
 import 'package:skmecom/model/featured_model.dart';
 import 'package:skmecom/provider/add_to_cart_provider.dart';
-import 'package:skmecom/screens/cartscreen.dart';
+
 import 'package:skmecom/utils/constants.dart';
 
 class ProductItem extends StatefulWidget {
@@ -37,11 +36,19 @@ class _ProductItemState extends State<ProductItem> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _countController.text = "1";
-    //  print( " img:  https://commerce.sketchmonk.com/_pb/api/files/${widget.productData!.collectionId.toString()}/${widget.productData!.id}/${widget.productData!.images[0].toString()}");
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = CartProvider.of(context, listen: false);
+      final product = widget.productData!;
+      if (provider.getProductQuantity(product) == 0) {
+        provider.toogleFavorite(product..quantity = 1);
+      }
+      
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,13 @@ class _ProductItemState extends State<ProductItem> {
               Radius.circular(8),
             ),
             child: InkWell(
-              onTap: () => itemDetailsPopUp(context),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) =>
+                      ProductDetailsDialog(product: widget.productData!),
+                );
+              },
               child: Container(
                 width: 90.w,
                 height: 130,
@@ -230,7 +243,14 @@ class _ProductItemState extends State<ProductItem> {
                                     child: Center(
                                       child: InkWell(
                                         onTap: () {
-                                          addPopup(context);
+                                          // addPopup(context);
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                VariantSelectionDialog(
+                                                    product:
+                                                        widget.productData!),
+                                          );
                                         },
                                         child: const Text(
                                           "+",
@@ -257,489 +277,5 @@ class _ProductItemState extends State<ProductItem> {
         ),
       ],
     );
-  }
-
-  Future<dynamic> addPopup(BuildContext context) {
-    final provider = CartProvider.of(context, listen: false);
-
-    Widget productQuantity(IconData icon,
-        {Product? product, Color color = Colors.black}) {
-      return GestureDetector(
-        onTap: () {
-          setState(() {
-            if (icon == Icons.add) {
-              provider.incrementQtn(product: product);
-            } else {
-              provider.decrementQtn(product: product);
-            }
-
-             final updatedQuantity = provider.getProductQuantity(product!);
-        _countController.text = updatedQuantity.toString();
-          });
-        },
-        child: Icon(
-          icon,
-          color: color,
-        ),
-      );
-    }
-
-    return showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              backgroundColor: AppColors.backgroundColor,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0))),
-              contentPadding: EdgeInsets.zero,
-              actionsPadding: EdgeInsets.zero,
-              titlePadding: EdgeInsets.zero,
-              iconPadding: EdgeInsets.zero,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-              content: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "Select Variant",
-                          style: TextStyle(
-                              color: AppColors.textcolor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: titleFontSize),
-                        ),
-                        const Spacer(),
-                        InkWell(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: const Icon(Remix.close_line))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    //  const PopUpItem(),
-                    PopUpItem(
-                      productName: widget.productData?.name ?? "No Name",
-                      discountAmount:
-                          widget.productData?.discountPrice.toString() ??
-                              "0.00",
-                      actualAmount:
-                          widget.productData?.actualPrice.toString() ?? "0.00",
-                      imageUrl:
-                          "https://commerce.sketchmonk.com/_pb/api/files/${widget.productData?.collectionId}/${widget.productData?.id}/${widget.productData?.images[0]}",
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                       
-
-                               Container(
-                                 height: 30,
-                                 width: 30,
-                                 decoration: BoxDecoration(
-                                     border: Border.all(color: AppColors.graycolor),
-                                     borderRadius: const BorderRadius.only(
-                                         topLeft: Radius.circular(8),
-                                         bottomLeft: Radius.circular(8))),
-                                 child:  productQuantity(Icons.remove,
-                            product: widget.productData),
-                                //  const Center(
-                                //      child: Text(
-                                //    "-",
-                                //    style: TextStyle(
-                                //        fontWeight: FontWeight.bold, fontSize: 20),
-                                //  )),
-                               ),
-                        Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.graycolor)),
-                            height: 30,
-                            width: 60.w,
-                            child: Center(
-                              child: TextFormField(
-                                  controller: _countController,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  keyboardType: TextInputType.number,
-                                  style: const TextStyle(fontSize: 12),
-                                  textAlign: TextAlign.center,
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 10),
-                                    border: InputBorder.none,
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: AppColors.primarycolor,
-                                      ),
-                                    ),
-                                  )),
-                            )),
-                      
-                             Container(
-                               height: 30,
-                               width: 30,
-                               decoration: BoxDecoration(
-                                   border: Border.all(color: AppColors.graycolor),
-                                   borderRadius: const BorderRadius.only(
-                                       topRight: Radius.circular(8),
-                                       bottomRight: Radius.circular(8))),
-                               child:    productQuantity(Icons.add, product: widget.productData),
-                              //  const Center(
-                              //      child: Text(
-                              //    "+",
-                              //    style: TextStyle(
-                              //        fontWeight: FontWeight.bold, fontSize: 20),
-                              //  )),
-                             ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        MaterialButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side:
-                                  const BorderSide(color: AppColors.graycolor),
-                            ),
-                            color: AppColors.backgroundColor,
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              "Cancel",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600),
-                            )),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        MaterialButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            color: AppColors.primarycolor,
-                            onPressed: () {
-                              final quantity =
-                                  int.tryParse(_countController.text) ?? 1;
-
-                              //  final cartProvider = CartProvider.of(context, listen: false);
-                              Product product = Product(
-                                  actualPrice: widget.productData!.actualPrice,
-                                  addons: widget.productData!.addons,
-                                  category: widget.productData!.category,
-                                  collectionId:
-                                      widget.productData!.collectionId,
-                                  collectionName:
-                                      widget.productData!.collectionName,
-                                  created: widget.productData!.created,
-                                  description: widget.productData!.description,
-                                  discountPrice:
-                                      widget.productData!.discountPrice,
-                                  expand: widget.productData!.expand,
-                                  featured: widget.productData!.featured,
-                                  id: widget.productData!.id,
-                                  images: widget.productData!.images,
-                                  name: widget.productData!.name,
-                                  slug: widget.productData!.slug,
-                                  updated: widget.productData!.updated,
-                                  quantity: quantity);
-
-                              provider.toogleFavorite(product);
-
-                              // print("add to cart data $product");
-                              // print("Add to cart with quantity: $quantity");
-
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => CartScreen()));
-                            },
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Remix.add_line,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "Add to Cart",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            )),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    )
-                  ],
-                ),
-              ),
-            ));
-  }
-
-  Future<dynamic> itemDetailsPopUp(BuildContext context) {
-    final provider = CartProvider.of(context, listen: false);
-    return showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              backgroundColor: AppColors.backgroundColor,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0))),
-              contentPadding: EdgeInsets.zero,
-              actionsPadding: EdgeInsets.zero,
-              titlePadding: EdgeInsets.zero,
-              iconPadding: EdgeInsets.zero,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-              content: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  // height: MediaQuery.of(context).size.height * 0.6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Stack(
-                        children: [
-                          CarouselSlider(
-                            options: CarouselOptions(
-                              height: MediaQuery.of(context).size.height * 0.4,
-                              viewportFraction: 1.0,
-                              enableInfiniteScroll: true,
-                              enlargeCenterPage: true,
-                            ),
-                            items: widget.productData!.images.map((imageUrl) {
-                              return Builder(
-                                builder: (BuildContext context) {
-                                  return Image.network(
-                                    "https://commerce.sketchmonk.com/_pb/api/files/${widget.productData!.collectionId.toString()}/${widget.productData!.id}/$imageUrl",
-                                    fit: BoxFit.cover,
-                                    width: MediaQuery.of(context).size.width,
-                                  );
-                                },
-                              );
-                            }).toList(),
-                          ),
-                          Positioned(
-                            top: 10,
-                            right: 10,
-                            child: InkWell(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: const Icon(
-                                Remix.close_line,
-                                size: 25,
-                                color: AppColors.graycolor,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    widget.productData!.name,
-                                    style: TextStyle(
-                                        color: AppColors.textcolor,
-                                        fontSize: titleFontSize,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                const Icon(
-                                  Remix.vip_crown_2_fill,
-                                  size: 20,
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Remix.apps_line,
-                                  size: 20,
-                                  color: AppColors.hashTagColor,
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    // "Rolex ",
-                                    widget.productData!.expand.category.title,
-                                    style: TextStyle(
-                                        color: AppColors.hashTagColor,
-                                        fontSize: titleFontSize,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              widget.productData!.description,
-                              style: TextStyle(
-                                  color: AppColors.subTextColor,
-                                  fontSize: secondayTitleFontSize),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  // "\u{20B9}3500",
-                                  "\u{20B9}${widget.productData!.discountPrice.toString()}.00",
-                                  style: TextStyle(
-                                      fontSize: 17.sp,
-                                      color: AppColors.primarycolor,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  // "\u{20B9}40000",
-
-                                  "\u{20B9}${widget.productData!.actualPrice.toString()}.00",
-                                  style: TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: AppColors.subTextColor,
-                                      fontSize: 17.sp,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                MaterialButton(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      side: const BorderSide(
-                                          color: AppColors.graycolor),
-                                    ),
-                                    color: AppColors.backgroundColor,
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "Cancel",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w600),
-                                    )),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                MaterialButton(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    color: AppColors.primarycolor,
-                                    onPressed: () {
-                                      Product product = Product(
-                                          actualPrice:
-                                              widget.productData!.actualPrice,
-                                          addons: widget.productData!.addons,
-                                          category:
-                                              widget.productData!.category,
-                                          collectionId:
-                                              widget.productData!.collectionId,
-                                          collectionName: widget
-                                              .productData!.collectionName,
-                                          created: widget.productData!.created,
-                                          description:
-                                              widget.productData!.description,
-                                          discountPrice:
-                                              widget.productData!.discountPrice,
-                                          expand: widget.productData!.expand,
-                                          featured:
-                                              widget.productData!.featured,
-                                          id: widget.productData!.id,
-                                          images: widget.productData!.images,
-                                          name: widget.productData!.name,
-                                          slug: widget.productData!.slug,
-                                          updated: widget.productData!.updated);
-                                      provider.toogleFavorite(product);
-
-                                      print("add to cart data $product");
-
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CartScreen()));
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Remix.add_line,
-                                          size: 20,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          "Add to Cart",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ],
-                                    )),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ));
   }
 }

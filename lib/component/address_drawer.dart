@@ -49,7 +49,7 @@ class _AddressDrawerState extends State<AddressDrawer> {
     Map<String, String?> credentials = await authService.getCredentials();
     setState(() {
       userId = credentials['userId'];
-       token = credentials['token'];
+      token = credentials['token'];
     });
 
     print("get _userId on account $userId");
@@ -69,7 +69,6 @@ class _AddressDrawerState extends State<AddressDrawer> {
   ) async {
     // Call the `placeOrder` method
     final isSuccess = await pocketBaseService.AddAddress(
-      
         building: building,
         city: city,
         contact: contact,
@@ -78,7 +77,8 @@ class _AddressDrawerState extends State<AddressDrawer> {
         state: state,
         street: street,
         user: user,
-        token: token, context: context);
+        token: token,
+        context: context);
 
     print(
         "Address $building, $city, $contact, $name, $pin, $state, $street, $user");
@@ -309,9 +309,20 @@ class _AddressDrawerState extends State<AddressDrawer> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Label
+                        // const Text(
+                        //   '* Contact Number',
+                        //   style: TextStyle(
+                        //     fontWeight: FontWeight.w600,
+                        //     fontSize: 16,
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 8),
+
+                        // Row for country code + input
                         Row(
                           children: [
-                            // Country Code Dropdown
+                            // Country Code Box
                             Container(
                               width: 80,
                               height: 48,
@@ -324,65 +335,82 @@ class _AddressDrawerState extends State<AddressDrawer> {
                                 child: Text(
                                   '+91',
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black87,
-                                  ),
+                                      fontSize: 16, color: Colors.black87),
                                 ),
                               ),
                             ),
 
-                            // Phone Number Input Field
+                            // Phone Number Input
                             Expanded(
-                              child: TextFormField(
-                                controller: _contactController,
-                                keyboardType: TextInputType.phone,
-                                decoration: const InputDecoration(
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 16),
-                                  hintText: 'a phone number to contact',
-                                  hintStyle: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: _errorMessage != null
+                                        ? Color.fromARGB(255, 189, 25, 28)
+                                        : Colors.grey.shade400,
                                   ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.horizontal(
-                                      right: Radius.circular(8),
-                                    ),
-                                    borderSide: BorderSide(color: Colors.grey),
-                                  ),
+                                  borderRadius: const BorderRadius.horizontal(
+                                      right: Radius.circular(8)),
                                 ),
-                                validator: (value) {
-                                  // setState(() {
-                                  //   _validate();
-                                  // });
-
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a phone number';
-                                  } else if (!RegExp(r'^[0-9]{10}$')
-                                      .hasMatch(value)) {
-                                    return 'Please enter a valid 10-digit phone number';
-                                  }
-                                  return null;
-                                },
+                                child: TextFormField(
+                                  controller: _contactController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: const InputDecoration(
+                                    hintText: 'a phone number to contact',
+                                    hintStyle: TextStyle(
+                                        fontSize: 14, color: Colors.grey),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 14),
+                                  ),
+                                  onChanged: (_) {
+                                    setState(() {
+                                      _errorMessage =
+                                          null; // Clear error on input
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      setState(() {
+                                        _errorMessage =
+                                            'Please enter a phone number';
+                                      });
+                                      return '';
+                                    } else if (!RegExp(r'^[0-9]{10}$')
+                                        .hasMatch(value)) {
+                                      setState(() {
+                                        _errorMessage =
+                                            'Please enter a valid 10-digit phone number';
+                                      });
+                                      return '';
+                                    }
+                                    setState(() {
+                                      _errorMessage = null;
+                                    });
+                                    return null;
+                                  },
+                                ),
                               ),
                             ),
                           ],
                         ),
 
-                        // Error Message
+                        // Show error message under entire input
+                        if (_errorMessage != null) const SizedBox(height: 4),
                         if (_errorMessage != null)
                           Padding(
-                            padding: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               _errorMessage!,
                               style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
+                                  color: Color.fromARGB(255, 189, 25, 28), fontSize: 12),
                             ),
                           ),
                       ],
                     ),
+
+                   
                   ],
                 ),
               ),
@@ -410,17 +438,16 @@ class _AddressDrawerState extends State<AddressDrawer> {
                       state.toString(), //state
                       _streetController.text, // street
                       userId.toString(), // user id
-                      token.toString()); 
+                      token.toString());
 
-          //            Navigator.push(
-          // context,
-          // MaterialPageRoute(
-          //     builder: (context) => HomeNavigation(
-          //           selectedIndex: 3,
-          //           filter: 'address',
-                   
-                    
-          //         )));
+                  //            Navigator.push(
+                  // context,
+                  // MaterialPageRoute(
+                  //     builder: (context) => HomeNavigation(
+                  //           selectedIndex: 3,
+                  //           filter: 'address',
+
+                  //         )));
                 }
               },
               style: ElevatedButton.styleFrom(

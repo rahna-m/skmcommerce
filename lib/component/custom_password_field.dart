@@ -13,7 +13,7 @@ class CustomPasswordTextField extends StatefulWidget {
     Key? key,
     required this.label,
     required this.hintText,
-    this.isRequired = false,
+    this.isRequired = true,
     this.controller,
     this.validator,
   }) : super(key: key);
@@ -39,8 +39,8 @@ class _CustomPasswordTextFieldState extends State<CustomPasswordTextField> {
       children: [
         Row(
           children: [
-            if (widget.isRequired)
-              Text(
+            if (widget.isRequired!)
+             const Text(
                 "* ",
                 style: TextStyle(color: Colors.red),
               ),
@@ -50,7 +50,7 @@ class _CustomPasswordTextFieldState extends State<CustomPasswordTextField> {
             ),
           ],
         ),
-        SizedBox(height: 10),
+      const SizedBox(height: 10),
         TextFormField(
           controller: widget.controller,
           validator: widget.validator,

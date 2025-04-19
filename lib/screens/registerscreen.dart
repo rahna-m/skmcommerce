@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE0ECF4), // Background color from your design
+      backgroundColor: const Color(0xFFE0ECF4), // Background color from your design
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -87,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   bottom: BorderSide(
                                       color: AppColors.graycolor
                                           .withOpacity(0.8)))),
-                          child: Text(
+                          child: const Text(
                             'Register',
                             style: TextStyle(
                               fontSize: 24,
@@ -96,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                     const SizedBox(height: 20),
                       Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 30),
+                            const  SizedBox(height: 30),
                               CustomTextField(
                                 label: 'Email',
                                 hintText: 'your personal email id',
@@ -128,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 30),
+                            const  SizedBox(height: 30),
                               CustomTextField(
                                 label: 'Username',
                                 hintText: 'your username',
@@ -140,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 30),
+                            const  SizedBox(height: 30),
                               CustomPasswordTextField(
                                 label: 'Password',
                                 hintText: 'your secret password',
@@ -165,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 30),
+                            const  SizedBox(height: 30),
                               CustomPasswordTextField(
                                 label: 'Confirm Password',
                                 hintText: 're-enter previous password',
@@ -181,14 +181,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 30),
+                             const SizedBox(height: 30),
                               Container(
                                 decoration: BoxDecoration(
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.3),
                                       blurRadius: 5,
-                                      offset: Offset(2, 5),
+                                      offset: const Offset(2, 5),
                                     ),
                                   ],
                                 ),
@@ -201,7 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       Register();
                                     }
                                   },
-                                  icon: Icon(
+                                  icon: const Icon(
                                     // Icons.login,
                                     Remix.file_edit_line,
                                     size: 20,
@@ -216,7 +216,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     // iconColor: Colors.white,
                                     backgroundColor:
                                         AppColors.primarycolor, // Button color
-                                    minimumSize: Size(double.infinity,
+                                    minimumSize: const Size(double.infinity,
                                         50), // Full-width button
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
@@ -224,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 20),
+                            const  SizedBox(height: 20),
                             ],
                           ),
                         ),
@@ -232,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                 ),
-                SizedBox(
+               const SizedBox(
                   height: 10,
                 ),
                 Text.rich(
@@ -242,13 +242,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       TextSpan(
                         text: "Login",
-                        style: TextStyle(color: AppColors.primarycolor),
+                        style: const TextStyle(color: AppColors.primarycolor),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => LoginScreen()),
+                                  builder: (context) => const LoginScreen()),
                             );
                           },
                       ),

@@ -336,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HomeNavigation(
+                              builder: (context) => const HomeNavigation(
                                     selectedIndex: 1,
                                    // filter: "featured = true",
                                   )));
@@ -403,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: CustomButton(title: "See More", onPressed: () {
 
                     result.clear;

@@ -20,16 +20,15 @@ class CartProvider extends ChangeNotifier {
   }
 
   void toogleFavorite(Product product) {
-    // Check if product already exists in the cart
+   
     final index = cart.indexWhere((item) => item.id == product.id);
     if (index != -1) {
-      // Update the quantity of the existing product
-      // cart[index].quantity += product.quantity;
 
-      cart[index].quantity =
-          (cart[index].quantity ?? 0) + (product.quantity ?? 0);
+       cart[index].quantity = (product.quantity ?? 0);
+
+    
     } else {
-      // Add new product to the cart
+      
       cart.add(product);
     }
     notifyListeners();
@@ -38,11 +37,11 @@ class CartProvider extends ChangeNotifier {
 
   void incrementQtn({int? index, Product? product}) {
   if (index != null) {
-    _cart[index].quantity = (_cart[index].quantity ?? 1) + 1;
+    _cart[index].quantity = (_cart[index].quantity ?? 0) + 1;
   } else if (product != null) {
     final existingIndex = _cart.indexWhere((item) => item.id == product.id);
     if (existingIndex != -1) {
-      _cart[existingIndex].quantity = (_cart[existingIndex].quantity ?? 1) + 1;
+      _cart[existingIndex].quantity = (_cart[existingIndex].quantity ?? 0) + 1;
     }
   }
   notifyListeners();
@@ -61,13 +60,21 @@ void decrementQtn({int? index, Product? product}) {
   }
   notifyListeners();
 }
+
 int getProductQuantity(Product product) {
   final index = _cart.indexWhere((item) => item.id == product.id);
   if (index != -1) {
     return _cart[index].quantity ?? 1;
   }
-  return 1;
+  return 1; 
 }
+// int getProductQuantity(Product product) {
+//   final index = _cart.indexWhere((item) => item.id == product.id);
+//   if (index != -1) {
+//     return _cart[index].quantity ?? 1;
+//   }
+//   return 1;
+// }
 
 void removeFromCart(Product item) {
   _cart.remove(item);
